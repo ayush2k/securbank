@@ -3,7 +3,6 @@ package securbank.dao;
 import java.util.List;
 import java.util.UUID;
 
-import securbank.models.Transaction;
 import securbank.models.Transfer;
 
 /**

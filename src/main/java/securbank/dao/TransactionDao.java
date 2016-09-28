@@ -1,7 +1,6 @@
 package securbank.dao;
 
 import securbank.models.Transaction;
-import securbank.models.User;
 
 import java.util.*;
 
