@@ -36,7 +36,7 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter-web')
 	compile('org.springframework.boot:spring-boot-starter-web-services')
 	compile("org.springframework.boot:spring-boot-starter-thymeleaf")
-	compile "joda-time:joda-time"
+	compile ("joda-time:joda-time")
 	runtime('mysql:mysql-connector-java')
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }

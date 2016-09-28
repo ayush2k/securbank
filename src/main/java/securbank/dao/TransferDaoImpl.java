@@ -47,7 +47,7 @@ public class TransferDaoImpl extends BaseDaoImpl<Transfer, UUID> implements Tran
 	public Transfer findTransferByFromAccount(String fromAccountnumber) {
 		try {
 			return (Transfer) this.entityManager.createQuery("SELECT transfer from Transfer transfer"
-					+ " where transfer.fromAccountnumber = :accountNumber")
+					+ " where transfer.fromAccountnumber = :fromAccountNumber")
 					.setParameter("fromAccountnumber", fromAccountnumber)
 					.getSingleResult();
 		}
