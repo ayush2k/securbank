@@ -1,14 +1,19 @@
 package securbank.models;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import java.util.HashSet;
 import java.util.Set;
 
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -104,6 +109,24 @@ public class User {
 	/** One to many relation ship  */
 	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
 	private Set<Account> accounts = new HashSet<Account>(0);
+
+	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
+	private Set<Otp> otps = new HashSet<Otp>(0);
+	
+	
+	/**
+	 * @return otp
+	 */
+	public Set<Otp> getOtps() {
+		return otps;
+	}
+
+	/**
+	 * @param otp
+	 */
+	public void setOtps(Set<Otp> otps) {
+		this.otps = otps;
+	}
 
 	public User() {
 		
