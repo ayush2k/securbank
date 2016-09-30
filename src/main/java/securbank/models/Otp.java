@@ -68,7 +68,7 @@ public class Otp {
 	private LocalDateTime createdOn;
 	
 	@NotNull
-	@Column(name = "createdOn", nullable = false, updatable = false)
+	@Column(name = "expiryTime", nullable = false, updatable = false)
 	private LocalDateTime expiryTime;
 	
 	public Otp() {
