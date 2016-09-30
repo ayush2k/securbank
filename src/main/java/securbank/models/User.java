@@ -3,6 +3,9 @@ package securbank.models;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.HashSet;
+import java.util.Set;
+
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -14,6 +17,10 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
+import javax.persistence.CascadeType; 
+import javax.persistence.FetchType;
+import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.validator.constraints.Email;
@@ -27,47 +34,6 @@ import org.joda.time.LocalDateTime;
 @Table(name = "User")
 public class User {
 	
-	/**
-	 * @param userId
-	 * @param username
-	 * @param password
-	 * @param firstName
-	 * @param middleName
-	 * @param lastName
-	 * @param email
-	 * @param phone
-	 * @param addressLine1
-	 * @param addressLine2
-	 * @param city
-	 * @param state
-	 * @param zip
-	 * @param createdOn
-	 * @param modifiedOn
-	 * @param lastLogin
-	 * @param active
-	 */
-	public User(UUID userId, String username, String password, String firstName, String middleName, String lastName,
-			String email, String phone, String addressLine1, String addressLine2, String city, String state, String zip,
-			LocalDateTime createdOn, LocalDateTime modifiedOn, LocalDateTime lastLogin, Boolean active) {
-		super();
-		this.userId = userId;
-		this.username = username;
-		this.password = password;
-		this.firstName = firstName;
-		this.middleName = middleName;
-		this.lastName = lastName;
-		this.email = email;
-		this.phone = phone;
-		this.addressLine1 = addressLine1;
-		this.addressLine2 = addressLine2;
-		this.city = city;
-		this.state = state;
-		this.zip = zip;
-		this.createdOn = createdOn;
-		this.modifiedOn = modifiedOn;
-		this.lastLogin = lastLogin;
-		this.active = active;
-	}
 	
 	@Id
 	@GeneratedValue(generator = "uuid2")
@@ -139,6 +105,10 @@ public class User {
 	@NotNull
 	@Column(name = "active", nullable = false, columnDefinition = "BIT")
 	private Boolean active;
+	
+	/** One to many relation ship  */
+	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
+	private Set<Account> accounts = new HashSet<Account>(0);
 
 	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
 	private Set<Otp> otps = new HashSet<Otp>(0);
@@ -160,6 +130,51 @@ public class User {
 
 	public User() {
 		
+	}
+	
+	/**
+	 * @param userId
+	 * @param username
+	 * @param password
+	 * @param firstName
+	 * @param middleName
+	 * @param lastName
+	 * @param email
+	 * @param phone
+	 * @param addressLine1
+	 * @param addressLine2
+	 * @param city
+	 * @param state
+	 * @param zip
+	 * @param createdOn
+	 * @param modifiedOn
+	 * @param lastLogin
+	 * @param active
+	 * @param accounts
+	 */
+	public User(UUID userId, String username, String password, String firstName, String middleName, String lastName,
+			String email, String phone, String addressLine1, String addressLine2, String city, String state, String zip,
+			LocalDateTime createdOn, LocalDateTime modifiedOn, LocalDateTime lastLogin, Boolean active,
+			Set<Account> accounts) {
+		super();
+		this.userId = userId;
+		this.username = username;
+		this.password = password;
+		this.firstName = firstName;
+		this.middleName = middleName;
+		this.lastName = lastName;
+		this.email = email;
+		this.phone = phone;
+		this.addressLine1 = addressLine1;
+		this.addressLine2 = addressLine2;
+		this.city = city;
+		this.state = state;
+		this.zip = zip;
+		this.createdOn = createdOn;
+		this.modifiedOn = modifiedOn;
+		this.lastLogin = lastLogin;
+		this.active = active;
+		this.accounts = accounts;
 	}
 	
 	/**
@@ -398,6 +413,20 @@ public class User {
 	 */
 	public void setActive(Boolean active) {
 		this.active = active;
+	}
+
+	/**
+	 * @return the accounts
+	 */
+	public Set<Account> getAccounts() {
+		return accounts;
+	}
+
+	/**
+	 * @param accounts the accounts to set
+	 */
+	public void setAccounts(Set<Account> accounts) {
+		this.accounts = accounts;
 	}
 
 	/* (non-Javadoc)
