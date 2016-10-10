@@ -29,10 +29,10 @@ public class CreditCardDaoImpl extends BaseDaoImpl<CreditCard, UUID> implements 
 	}
 
 	@Override
-	public CreditCard findByAccountNumber(UUID accountID) {
+	public CreditCard findByAccountNumber(Long accountNumber) {
 		try {
-			return (CreditCard) this.entityManager.createQuery("SELECT creditcard from CreditCard creditcard where (creditcard.accountID = :accountID) AND creditcard.active = 1")
-					.setParameter("accountID", accountID)
+			return (CreditCard) this.entityManager.createQuery("SELECT creditcard from CreditCard creditcard where (creditcard.account_number = :accountNumber) AND creditcard.active = 1")
+					.setParameter("accountNumber", accountNumber)
 					.getSingleResult();
 		}
 		catch(NoResultException e) {
