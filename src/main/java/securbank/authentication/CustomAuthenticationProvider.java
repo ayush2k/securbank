@@ -1,6 +1,5 @@
 package securbank.authentication;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +32,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		User user = auth.verifyUser(authentication.getPrincipal().toString(), authentication.getCredentials().toString());
 		if (user == null) {
-			throw new BadCredentialsException("Invalid Username or Password");
+			 throw new BadCredentialsException("Username or password is incorrect");
 		}
 		auth.updateLoginTime(user);
 		

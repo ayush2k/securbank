@@ -1,22 +1,35 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
-    <head>
-        <title>Spring Security Example </title>
-    </head>
-    <body>
-        <div th:object="${user}">
-	        <p>Username: <p th:text="*{username}" /></p>
-	        <p>Email: <p th:text="*{email}" /></p>
-	        <p>First Name: <p th:text="*{firstName}" /></p>
-	        <p>Last Name: <p th:text="*{lastName}" /></p>
-	        <p>Phone: <p th:text="*{phone}" /></p>
-	        <p>Address Line1: <p th:text="*{addressLine1}" /></p>
-	        <p>City: <p th:text="*{city}" /></p>
-	        <p>Zip: <p th:text="*{zip}" /></p>
-	        <p>State: <p th:text="*{state}" /></p>
-	        <p>Role: <p th:text="*{role}" /></p>
-			<p><a th:href="@{manager/edit}">Edit</a></p>
-		</div>
-    </body>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+<title>Details</title>
+</head>
+<body>
+	<div th:object="${user}">
+		<p>Username:
+		<p th:text="*{username}" /></p>
+		<p>Email:
+		<p th:text="*{email}" /></p>
+		<p>First Name:
+		<p th:text="*{firstName}" /></p>
+		<p>Last Name:
+		<p th:text="*{lastName}" /></p>
+		<p>Phone:
+		<p th:text="*{phone}" /></p>
+		<p>Address Line1:
+		<p th:text="*{addressLine1}" /></p>
+		<p>City:
+		<p th:text="*{city}" /></p>
+		<p>Zip:
+		<p th:text="*{zip}" /></p>
+		<p>State:
+		<p th:text="*{state}" /></p>
+		<p>Role:
+		<p th:text="*{role}" /></p>
+		<p>
+			<a th:href="@{/manager/edit}">Edit</a>
+		</p>
+	</div>
+</body>
 </html>

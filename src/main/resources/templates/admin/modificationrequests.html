@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+<title>Modification Requests</title>
+</head>
+<body>
+	<table>
+		<tr>
+			<td>Username</td>
+			<td>View</td>
+			<td>Delete</td>
+		</tr>
+		<tr th:each="request : ${modificationrequests}">
+			<td th:text="${request.user.username}"></td>
+			<td><a
+				th:href="@{/admin/user/request/view/{id}(id=${request.modificationRequestId})}">View</a></td>
+			<td><a
+				th:href="@{/admin/user/request/delete/{id}(id=${request.modificationRequestId})}">Delete</a></td>
+		</tr>
+	</table>
+</body>
+</html>
