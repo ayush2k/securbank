@@ -111,6 +111,9 @@ public class User {
 	/** One to many relation ship  */
 	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
 	private Set<Account> accounts = new HashSet<Account>(0);
+	
+	@Column(name = "macAddress", updatable = true)
+		private String macAddress;
 
 	public User() {
 		
@@ -137,12 +140,13 @@ public class User {
 	 * @param modifiedOn
 	 * @param lastLogin
 	 * @param active
-	 * @param accounts
+	 * @param accounts 
+	 * @param macAddress
 	 */
 	public User(UUID userId, String role, String type, String username, String password, String confirmPassword,
 			String firstName, String middleName, String lastName, String email, String phone, String addressLine1,
 			String addressLine2, String city, String state, String zip, LocalDateTime createdOn,
-			LocalDateTime modifiedOn, LocalDateTime lastLogin, Boolean active, Set<Account> accounts) {
+			LocalDateTime modifiedOn, LocalDateTime lastLogin, Boolean active, Set<Account> accounts, String macAddres, String macAddress) {
 		super();
 		this.userId = userId;
 		this.role = role;
@@ -165,6 +169,7 @@ public class User {
 		this.lastLogin = lastLogin;
 		this.active = active;
 		this.accounts = accounts;
+		this.macAddress = macAddress;
 	}
 
 	/**
@@ -460,6 +465,14 @@ public class User {
 	public void setAccounts(Set<Account> accounts) {
 		this.accounts = accounts;
 	}
+	
+	public String getMacAddress() {
+		return macAddress;
+	}
+
+	public void setMacAddress(String macAddress) {
+		this.macAddress = macAddress;
+	}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
@@ -471,6 +484,6 @@ public class User {
 				+ middleName + ", lastName=" + lastName + ", email=" + email + ", phone=" + phone + ", addressLine1="
 				+ addressLine1 + ", addressLine2=" + addressLine2 + ", city=" + city + ", state=" + state + ", zip="
 				+ zip + ", createdOn=" + createdOn + ", modifiedOn=" + modifiedOn + ", lastLogin=" + lastLogin
-				+ ", active=" + active + ", accounts=" + accounts + "]";
+				+ ", active=" + active + ", accounts=" + accounts + "macAddress=" + macAddress + "]";
 	}
 }

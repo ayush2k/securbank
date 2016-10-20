@@ -4,6 +4,7 @@ import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	
 	@Autowired 
 	private PasswordEncoder encoder;
+	
+	@Autowired
+	private EmailService emailService;
 	
 	
 	
@@ -68,6 +72,23 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		}
 		
 		return user;
+	}
+
+
+	@Override
+	public User verifyMacAddress(String macAddress, String username) {
+		User user = userDao.findByUsernameOrEmail(username);
+		String macAddressPresent = user.getMacAddress();
+		if(macAddress == macAddressPresent){
+			return user;
+		}else{
+			SimpleMailMessage message = new SimpleMailMessage();
+			message.setText("Your account has been logged in using new device");
+			message.setSubject("New sign-in");
+			message.setTo(user.getEmail());
+			emailService.sendEmail(message);
+		}
+		return null;
 	}
 	
 }

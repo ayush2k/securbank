@@ -1,5 +1,7 @@
 package securbank.controller;
 
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
@@ -64,6 +66,21 @@ public class CommonController {
 			
 			return "signup";
         }
+		InetAddress ip;
+		try {
+		ip = InetAddress.getLocalHost();
+		System.out.println("Current IP address : " + ip.getHostAddress());
+
+		NetworkInterface network = NetworkInterface.getByInetAddress(ip);
+
+		byte[] mac = network.getHardwareAddress();
+		String macString = new String(mac);
+		System.out.println(macString);
+		
+		user.setMacAddress(mac.toString());
+		}catch(Exception e){
+			System.out.println(e);
+		}
 		
 		logger.info("POST request: signup");
 		logger.info("Username: "+user.getUsername());
