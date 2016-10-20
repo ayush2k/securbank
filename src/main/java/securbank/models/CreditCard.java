@@ -3,6 +3,7 @@ package securbank.models;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -30,16 +31,12 @@ public class CreditCard {
 	@Column(name = "ccid", unique = true, nullable = false, columnDefinition = "BINARY(16)")
 	private UUID ccId;
 
-	@NotNull
-	@Column(name = "account_number", nullable = false)
-	private Long accountNumber;
-
 	/**
 	 * Multiple credit cards may map to the same account, but only one of those
 	 * credit cards may be active at any time.
 	 */
-	@ManyToOne(fetch = FetchType.LAZY, optional = false)
-	@JoinColumn(name = "account_number", insertable = false, updatable = false)
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, optional = false)
+	@JoinColumn(name = "accountNumber")
 	private Account account;
 
 	@NotNull
@@ -51,145 +48,142 @@ public class CreditCard {
 	private Double maxLimit;
 
 	@NotNull
-	@Column(name = "balance", nullable = false)
-	private Double balance;
-
-	@NotNull
 	@Column(name = "active", nullable = false, columnDefinition = "BIT")
 	private Boolean active;
 
 	@NotNull
-	@Column(name = "created_on", nullable = false, updatable = false, columnDefinition = "TIMESTAMP")
+	@Column(name = "created_on", nullable = false, updatable = false)
 	private LocalDateTime createdOn;
 
+	public CreditCard() {
+		
+	}
+	
 	/**
-	 * @return The credit card id.
+	 * @param ccId
+	 * @param account
+	 * @param apr
+	 * @param maxLimit
+	 * @param active
+	 * @param createdOn
+	 */
+	public CreditCard(UUID ccId, Account account, Double apr, Double maxLimit, Boolean active,
+			LocalDateTime createdOn) {
+		super();
+		this.ccId = ccId;
+		this.account = account;
+		this.apr = apr;
+		this.maxLimit = maxLimit;
+		this.active = active;
+		this.createdOn = createdOn;
+	}
+
+
+	/**
+	 * @return the ccId
 	 */
 	public UUID getCcId() {
 		return ccId;
 	}
 
-	/**
-	 * @param ccID
-	 *            the ccID to set
-	 */
-	public void setCcID(UUID ccID) {
-		this.ccId = ccID;
-	}
 
 	/**
-	 * @return The account associated with this card.
+	 * @param ccId the ccId to set
+	 */
+	public void setCcId(UUID ccId) {
+		this.ccId = ccId;
+	}
+
+
+	/**
+	 * @return the account
 	 */
 	public Account getAccount() {
 		return account;
 	}
 
-	/**
-	 * @return The account number of the account associated with this card.
-	 */
-	public Long getAccountNumber() {
-		return accountNumber;
-	}
 
 	/**
-	 * Associates this card with the given account.
-	 *
-	 * @param account
-	 *            The new account to associate this card with.
+	 * @param account the account to set
 	 */
 	public void setAccount(Account account) {
 		this.account = account;
-		this.accountNumber = account.getAccountNumber();
 	}
 
+
 	/**
-	 * @return The annual percentage rate (APR).
+	 * @return the apr
 	 */
 	public Double getApr() {
-		return this.apr;
+		return apr;
 	}
 
+
 	/**
-	 * Sets the annual percentage rate (APR) to the given value.
-	 *
-	 * @param apr
-	 *            The new APR.
+	 * @param apr the apr to set
 	 */
-	public void setApr(double apr) {
+	public void setApr(Double apr) {
 		this.apr = apr;
 	}
 
+
 	/**
-	 * @return The maximum spending limit.
+	 * @return the maxLimit
 	 */
 	public Double getMaxLimit() {
 		return maxLimit;
 	}
 
+
 	/**
-	 * Sets the maximum spending limit to the given value.
-	 *
-	 * @param maxLimit
-	 *            The new maximum spending limit.
+	 * @param maxLimit the maxLimit to set
 	 */
 	public void setMaxLimit(Double maxLimit) {
 		this.maxLimit = maxLimit;
 	}
 
-	/**
-	 * @return The credit card balance.
-	 */
-	public Double getBalance() {
-		return balance;
-	}
 
 	/**
-	 * Sets the credit card balance to the given balance.
-	 *
-	 * @param balance
-	 *            The new credit card balance.
-	 */
-	public void setBalance(Double balance) {
-		this.balance = balance;
-	}
-
-	/**
-	 * @return The active status.
+	 * @return the active
 	 */
 	public Boolean getActive() {
 		return active;
 	}
 
+
 	/**
-	 * Marks this card as active or inactive.
-	 *
-	 * @param active
-	 *            The new active status.
+	 * @param active the active to set
 	 */
 	public void setActive(Boolean active) {
 		this.active = active;
 	}
 
+
 	/**
-	 * @return This card's creation timestamp.
+	 * @return the createdOn
 	 */
 	public LocalDateTime getCreatedOn() {
 		return createdOn;
 	}
 
+
 	/**
-	 * @param createdOn
-	 *            The new creation datetime.
+	 * @param createdOn the createdOn to set
 	 */
 	public void setCreatedOn(LocalDateTime createdOn) {
 		this.createdOn = createdOn;
 	}
 
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
-		return "CreditCard [ccid=" + ccId + ", account_number=" + accountNumber + ", apr=" + apr + ", max_limit="
-				+ maxLimit + ", balance=" + balance + ", active=" + active + ", created_on=" + createdOn + "]";
+		return "CreditCard [ccId=" + ccId + ", account=" + account + ", apr=" + apr + ", maxLimit=" + maxLimit
+				+ ", active=" + active + ", createdOn=" + createdOn + "]";
 	}
+
 
 	/**
 	 * Sets the created date/time to the current timestamp immediately before

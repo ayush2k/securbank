@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+    <head>
+        <title>Details</title>
+    </head>
+    <body>
+        <div th:object="${creditCard}">
+	        <p>Max Limit: <p th:text="*{maxLimit}" /></p>
+	        <p>APR: <p th:text="*{apr}" /></p>
+	        <p>Balance: <p th:text="*{account.balance}" /></p>
+	        <p><a th:href="@{user/credit-card/transactions}">View Transactions</a></p>
+		</div>
+    </body>
+</html>

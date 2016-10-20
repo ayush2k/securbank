@@ -1,5 +1,8 @@
 package securbank.models;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,6 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
@@ -48,134 +52,139 @@ public class Account {
 	@Column(name = "active", columnDefinition = "BIT")
 	private Boolean active;
 	
+	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "account")
+	private Set<CreditCard> creditCards = new HashSet<CreditCard>(0);
+	
+	public Account() {
+		
+	}
+
 	/**
-	 * 
 	 * @param accountNumber
 	 * @param user
 	 * @param balance
-	 * @param accountType
+	 * @param type
 	 * @param createdOn
 	 * @param active
+	 * @param creditCards
 	 */
-	public Account(Long accountNumber, User user, double balance, String type, LocalDateTime createdOn, Boolean active){
+	public Account(Long accountNumber, User user, Double balance, String type, LocalDateTime createdOn, Boolean active,
+			Set<CreditCard> creditCards) {
 		super();
 		this.accountNumber = accountNumber;
 		this.user = user;
 		this.balance = balance;
 		this.type = type;
 		this.createdOn = createdOn;
-		this.active = active;	
-		
+		this.active = active;
+		this.creditCards = creditCards;
 	}
-	
-	public Account() {
-		
-	}
-	
+
 	/**
-	 * 
-	 * @return accountNumber
+	 * @return the accountNumber
 	 */
 	public Long getAccountNumber() {
 		return accountNumber;
 	}
-	
+
 	/**
-	 * 
-	 * @param accountNumber sets accountNumber
+	 * @param accountNumber the accountNumber to set
 	 */
 	public void setAccountNumber(Long accountNumber) {
 		this.accountNumber = accountNumber;
 	}
-	
+
 	/**
-	 * 
-	 * @return user
+	 * @return the user
 	 */
 	public User getUser() {
 		return user;
 	}
-	
+
 	/**
-	 * 
-	 * @param user sets user
+	 * @param user the user to set
 	 */
 	public void setUser(User user) {
 		this.user = user;
 	}
 
 	/**
-	 * 
-	 * @return balance
+	 * @return the balance
 	 */
 	public Double getBalance() {
 		return balance;
 	}
-	
+
 	/**
-	 * 
-	 * @param balance sets balance
+	 * @param balance the balance to set
 	 */
 	public void setBalance(Double balance) {
 		this.balance = balance;
 	}
 
 	/**
-	 * 
-	 * @return type
+	 * @return the type
 	 */
 	public String getType() {
 		return type;
 	}
-	
+
 	/**
-	 * 
-	 * @param type sets type
+	 * @param type the type to set
 	 */
 	public void setType(String type) {
 		this.type = type;
 	}
-		
+
 	/**
-	 * 
-	 * @return createdOn time created on
+	 * @return the createdOn
 	 */
 	public LocalDateTime getCreatedOn() {
 		return createdOn;
 	}
-	
+
 	/**
-	 * 
-	 * @param createdOn sets time created on 
+	 * @param createdOn the createdOn to set
 	 */
 	public void setCreatedOn(LocalDateTime createdOn) {
 		this.createdOn = createdOn;
 	}
-		
+
 	/**
-	 * 
-	 * @return active if the account is active
+	 * @return the active
 	 */
 	public Boolean getActive() {
 		return active;
 	}
 
 	/**
-	 * 
-	 * @param active sets account active
+	 * @param active the active to set
 	 */
 	public void setActive(Boolean active) {
 		this.active = active;
 	}
-	
+
 	/**
+	 * @return the creditCards
+	 */
+	public Set<CreditCard> getCreditCards() {
+		return creditCards;
+	}
+
+	/**
+	 * @param creditCards the creditCards to set
+	 */
+	public void setCreditCards(Set<CreditCard> creditCards) {
+		this.creditCards = creditCards;
+	}
+
+	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
-	public String toString(){
-		return "Account [accountNumber=" + accountNumber + ", user=" + user + ", balance="
-				+ balance + ", type=" + type + ", active=" + active + ", balance=" +
-				", createdOn=" + createdOn + "]";
+	public String toString() {
+		return "Account [accountNumber=" + accountNumber + ", user=" + user + ", balance=" + balance + ", type=" + type
+				+ ", createdOn=" + createdOn + ", active=" + active + ", creditCards=" + creditCards + "]";
 	}
-
+	
 }

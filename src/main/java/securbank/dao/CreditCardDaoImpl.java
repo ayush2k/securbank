@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import securbank.models.CreditCard;
+import securbank.models.User;
 
 @Repository("creditCardDao")
 public class CreditCardDaoImpl extends BaseDaoImpl<CreditCard, UUID> implements CreditCardDao {
@@ -33,6 +34,19 @@ public class CreditCardDaoImpl extends BaseDaoImpl<CreditCard, UUID> implements 
 		try {
 			return (CreditCard) this.entityManager.createQuery("SELECT creditcard from CreditCard creditcard where (creditcard.account_number = :accountNumber) AND creditcard.active = 1")
 					.setParameter("accountNumber", accountNumber)
+					.getSingleResult();
+		}
+		catch(NoResultException e) {
+			// returns null if no user if found
+			return null;
+		}
+	}
+	
+	@Override
+	public CreditCard findByUser(User user) {
+		try {
+			return (CreditCard) this.entityManager.createQuery("SELECT creditcard from CreditCard creditcard where creditcard.account.user = :user AND creditcard.active = true")
+					.setParameter("user", user)
 					.getSingleResult();
 		}
 		catch(NoResultException e) {

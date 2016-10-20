@@ -2,22 +2,18 @@ package securbank.services;
 
 import java.time.LocalDateTime;
 
-import securbank.models.Account;
 import securbank.models.CreditCard;
+import securbank.models.User;
 
 public interface CreditCardService {
 	/**
 	 * Creates a new credit card if there is not already
+	 * @param user
+	 *            The user for which to create a credit card
 	 *
-	 * @param accountId
-	 *            The id of the account the credit card will be under.
-	 * @param apr
-	 *            The annual percentage rate (APR) of the credit card.
-	 * @param maxLimit
-	 *            The maximum balance the issuer allows on the credit card.
 	 * @return The newly created credit card.
 	 */
-	public CreditCard createCreditCard(Account account, double apr, double maxLimit);
+	public CreditCard createCreditCard(User user);
 
 	/**
 	 * Generates the daily interest using the following formula:
@@ -39,11 +35,11 @@ public interface CreditCardService {
 	public double generateInterest(CreditCard creditCard, LocalDateTime startBillingPeriodDt, LocalDateTime endBillingPeriodDt);
 
 	/**
-	 * Retrieves the details of the credit card under the given account.
+	 * Retrieves the details of the credit card under the given user.
 	 *
-	 * @param accountId
-	 *            The id of the account the credit card is under.
+	 * @param user
+	 *            The user for which to search for
 	 * @return The credit card details.
 	 */
-	public CreditCard getCreditCardDetails(Account account);
+	public CreditCard getCreditCardDetails(User user);
 }
