@@ -57,6 +57,10 @@ public class NewUserRequestFormValidator implements Validator{
 			else if (newUserRequestDao.emailExists(newUserRequest.getEmail()) || userDao.emailExists(newUserRequest.getEmail()) ) {
 				errors.rejectValue("email", "newuserrequest.email.exists", "Email exists");
 			}
-		}		
+		}
+		
+		if (!errors.hasFieldErrors("role") && !ContraintUtils.validateInternalRole(newUserRequest.getRole())) {
+			errors.rejectValue("role", "newuserrequest.role.invalid", "Invalid Role");
+		}
 	} 
 }
