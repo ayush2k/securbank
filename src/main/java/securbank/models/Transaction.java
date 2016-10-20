@@ -1,5 +1,6 @@
 package securbank.models;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 
@@ -10,14 +11,13 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.GenericGenerator;
-import org.joda.time.LocalDateTime;
 
 /**
  * @author Mitikaa Sama
@@ -29,92 +29,61 @@ import org.joda.time.LocalDateTime;
 @Table(name = "Transaction")
 
 public class Transaction {
-	
+
 	@Id
 	@GeneratedValue(generator = "uuid2")
 	@GenericGenerator(name = "uuid2", strategy = "uuid2")
 	@NotNull
 	@Column(name = "transactionId", unique = true, nullable = false, columnDefinition = "BINARY(16)")
 	private UUID transactionId;
-	
+
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@JoinColumn(name = "account_number", insertable = false, updatable = false)
+	private Account account;
+
 	@NotNull
-	@Size(min = 8, max = 8)
-	@Column(name = "accountNumber", unique = false, nullable = false, updatable = false)
-	private String accountNumber;
-	
+	@Column(name = "account_number", nullable = false)
+	private long accountNumber;
+
 	@NotNull
 	@Column(name = "amount", unique = false, nullable = false, updatable = false)
 	private double amount;
-	
+
 	@NotNull
 	@Column(name = "type", unique = false, nullable = false)
 	private String type;
-	
+
 	@NotNull
-	@Column(name = "oldBalance", unique = false, nullable = false, updatable = false)
+	@Column(name = "old_balance", unique = false, nullable = false, updatable = false)
 	private double oldBalance;
-	
+
 	@NotNull
-	@Column(name = "newBalance", unique = false, nullable = false, updatable = false)
+	@Column(name = "new_balance", unique = false, nullable = false, updatable = false)
 	private double newBalance;
-	
+
 	@NotNull
-	@Column(name = "criticalStatus", unique = false, nullable = false, columnDefinition = "BIT")
+	@Column(name = "critical_status", unique = false, nullable = false, columnDefinition = "BIT")
 	private boolean criticalStatus;
-	
+
 	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@JoinColumn(name = "transferId", nullable = false)
 	private Transfer transfer;
-	
+
 	@NotNull
-	@Column(name = "createdOn", nullable = false, updatable = false)
+	@Column(name = "created_on", nullable = false, updatable = false)
 	private LocalDateTime createdOn;
-	
-	@Column(name = "modifiedOn", nullable = true, updatable = true)
+
+	@Column(name = "modified_on", nullable = true, updatable = true)
 	private LocalDateTime modifiedOn;
 
 	@ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-	@Column(name = "userId", nullable = true, updatable = true)
+	@Column(name = "user_id", nullable = true, updatable = true)
 	private Set<User> modifiedBy;
 
 	@NotNull
 	@Column(name = "active", nullable = false, columnDefinition = "BIT")
 	private Boolean active;
-	
-	/**
-	 * @param transactionId
-	 * @param accountNumber
-	 * @param amount
-	 * @param type
-	 * @param oldBalance
-	 * @param newBalance
-	 * @param criticalStatus
-	 * @param transferId
-	 * @param createdOn
-	 * @param modifiedOn
-	 * @param modifiedBy
-	 * @param active
-	 */
-	public Transaction(UUID transactionId, String accountNumber, double amount, 
-			String type, double oldBalance, double newBalance, Boolean criticalStatus, 
-			Transfer transfer, LocalDateTime createdOn, LocalDateTime modifiedOn, Set<User> modifiedBy, Boolean active){
-		super();
-		this.transactionId = transactionId;
-		this.accountNumber = accountNumber;
-		this.amount = amount;
-		this.type = type;
-		this.oldBalance = oldBalance;
-		this.newBalance = newBalance;
-		this.criticalStatus = criticalStatus;
-		this.transfer = transfer;
-		this.createdOn = createdOn;
-		this.modifiedOn = modifiedOn;
-		this.modifiedBy = modifiedBy;
-		this.active = active;
-		
-	}
 
-	
 	/**
 	 * @return the transfer
 	 */
@@ -189,7 +158,7 @@ public class Transaction {
 	/**
 	 * @return the accountNumber
 	 */
-	public String getAccountNumber() {
+	public long getAccountNumber() {
 		return accountNumber;
 	}
 
@@ -217,7 +186,7 @@ public class Transaction {
 		return oldBalance;
 	}
 
-	
+
 	/**
 	 * @return the newBalance
 	 */
@@ -251,10 +220,11 @@ public class Transaction {
 
 
 	/**
-	 * @param accountNumber the accountNumber to set
+	 * @param testAccountNumber the accountNumber to set
 	 */
-	public void setAccountNumber(String accountNumber) {
-		this.accountNumber = accountNumber;
+	public void setAccount(Account account) {
+		this.account = account;
+		this.accountNumber = account.getAccountNumber();
 	}
 
 
@@ -305,14 +275,12 @@ public class Transaction {
 //		this.transferId = transferId;
 //	}
 
-
 	/**
 	 * @param createdOn the createdOn to set
 	 */
 	public void setCreatedOn(LocalDateTime createdOn) {
 		this.createdOn = createdOn;
 	}
-
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
@@ -324,5 +292,14 @@ public class Transaction {
 				+ criticalStatus + ", transfer=" + transfer + ", createdOn=" + createdOn + "]";
 	}
 
-
+	/**
+	 * Sets the created date/time to the current timestamp immediately before
+	 * the transaction is inserted.
+	 */
+	@PrePersist
+	protected void onCreate() {
+		if (this.createdOn == null) {
+			this.createdOn = LocalDateTime.now();
+		}
+	}
 }

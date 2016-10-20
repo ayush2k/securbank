@@ -7,5 +7,5 @@ import securbank.models.CreditCard;
 
 public interface CreditCardDao extends BaseDao<CreditCard, UUID> {
 	public List<CreditCard> findAll();
-	public CreditCard findByAccountNumber(UUID accountID);
+	public CreditCard findByAccountNumber(Long accountNumber);
 }
