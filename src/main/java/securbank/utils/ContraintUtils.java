@@ -21,6 +21,8 @@ public class ContraintUtils {
 	private static final String ZIP_PATTERN = "[0-9]{5}";
 	private static final String PHONE_PATTERN = "[0-9]{10}";
 	private static final String PASSWORD_PATTERN =  "((?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$!%]).{6,20})";
+	private static final String INTERNAL_ROLES = "[ROLE_MANAGER|ROLE_EMPLOYEE|ROLE_ADMIN]";
+	private static final String EXTERNAL_ROLES = "[ROLE_INDIVIDUAL|ROLE_MERCHANT]";
 	
 	/**
      * Validates username
@@ -92,4 +94,31 @@ public class ContraintUtils {
 		return matcher.matches();
 	}
 	
+	/**
+     * Validates internal role
+     * 
+     * @param role
+     *            The role to be validated
+     * @return boolean
+     */
+	public static boolean validateInternalRole(String role) {
+		pattern = Pattern.compile(INTERNAL_ROLES);
+		matcher = pattern.matcher(role);
+		
+		return matcher.matches();
+	}
+	
+	/**
+     * Validates external role
+     * 
+     * @param role
+     *            The role to be validated
+     * @return boolean
+     */
+	public static boolean validateExternalRole(String role) {
+		pattern = Pattern.compile(EXTERNAL_ROLES);
+		matcher = pattern.matcher(role);
+		
+		return matcher.matches();
+	}
 }
