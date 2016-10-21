@@ -17,6 +17,8 @@ import securbank.models.CreditCard;
 import securbank.models.User;
 import securbank.services.CreditCardService;
 import securbank.services.UserService;
+import securbank.validators.EditUserFormValidator;
+import securbank.validators.NewUserFormValidator;
 
 /**
  * @author Ayush Gupta
@@ -30,12 +32,17 @@ public class ExternalUserController {
 	@Autowired
 	CreditCardService creditCardService;
 	final static Logger logger = LoggerFactory.getLogger(ExternalUserController.class);
+	@Autowired 
+	NewUserFormValidator userFormValidator;
 	
+	@Autowired 
+	EditUserFormValidator editUserFormValidator;
+
 	@GetMapping("/user/details")
     public String currentUserDetails(Model model) {
 		User user = userService.getCurrentUser();
 		if (user == null) {
-			return "redirect:/error?code=user-notfound";
+			return "redirect:/error?code=400&path=user-notfound";
 		}
 		
 		model.addAttribute("user", user);
@@ -92,4 +99,27 @@ public class ExternalUserController {
         return "external/creditcard_detail";
     }
 	
+	@GetMapping("/user/edit")
+    public String editUser(Model model) {
+		User user = userService.getCurrentUser();
+		if (user == null) {
+			return "redirect:/error";
+		}
+		model.addAttribute("user", user);
+		
+        return "external/edit";
+    }
+	
+	@PostMapping("/user/edit")
+    public String editSubmit(@ModelAttribute User user, BindingResult bindingResult) {
+		editUserFormValidator.validate(user, bindingResult);
+		if (bindingResult.hasErrors()) {
+			return "external/edit";
+        }
+		
+		// create request
+    	userService.createExternalModificationRequest(user);
+	
+        return "redirect:/";
+    }
 }

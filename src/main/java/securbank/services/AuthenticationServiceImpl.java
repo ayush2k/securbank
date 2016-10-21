@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCrypt;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,10 +22,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	@Autowired
 	private UserDao userDao;
 	
-	@Autowired 
-	private PasswordEncoder encoder;
-	
-	
+	private Logger logger = LoggerFactory.getLogger(AuthenticationServiceImpl.class);
 	
 	/**
      * Verify the username and password for current user
@@ -43,6 +39,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		if (user == null) {
 			return null;
 		}
+		
+		logger.info("Verifying username and password");
 		
 		if (!BCrypt.checkpw(password, user.getPassword())) {
 			return null;
@@ -66,6 +64,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		if (user == null) {
 			return null;
 		}
+		logger.info("Updating login time for User");
 		
 		return user;
 	}

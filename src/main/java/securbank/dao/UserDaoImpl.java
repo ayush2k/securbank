@@ -9,6 +9,7 @@ import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
+import javax.persistence.NonUniqueResultException;
 
 import securbank.models.User;
 
@@ -32,7 +33,6 @@ public class UserDaoImpl extends BaseDaoImpl<User, UUID> implements UserDao {
      *            The username or email to query db
      * @return User
      */
-	
 	@Override
 	public User findByUsernameOrEmail(String user) {
 		try {
@@ -45,8 +45,37 @@ public class UserDaoImpl extends BaseDaoImpl<User, UUID> implements UserDao {
 			// returns null if no user if found
 			return null;
 		}
+		catch(NonUniqueResultException e) {
+			// returns null if no user if found
+			return null;
+		}
 	}
 
+
+	/**
+     * Returns user for the given Id.
+     * 
+     * @param user
+     *            The username or email to query db
+     * @return User
+     */
+	@Override
+	public User findByUsername(String username) {
+		try {
+			return this.entityManager.createQuery("SELECT user from User user where user.username = :username AND user.active = true", User.class)
+					.setParameter("username", username)
+					.getSingleResult();
+		}
+		catch(NoResultException e) {
+			// returns null if no user if found
+			return null;
+		}
+		catch(NonUniqueResultException e) {
+			// returns null if no user if found
+			return null;
+		}
+	}
+	
 	/**
      * Returns list of all users in the tables
      * 
@@ -67,11 +96,6 @@ public class UserDaoImpl extends BaseDaoImpl<User, UUID> implements UserDao {
 	public List<User> findAllByType(String type) {
 		return this.entityManager.createQuery("SELECT user from User user where user.type = :type AND user.active = true", User.class)
 				.setParameter("type", type)
-				.getResultList();
-	}
-
-	public List<User> findAllInternalUsers() {
-		return this.entityManager.createQuery("SELECT user from User user where user.role = manager OR user.role= employee OR user.role = admin", User.class)
 				.getResultList();
 	}
 	

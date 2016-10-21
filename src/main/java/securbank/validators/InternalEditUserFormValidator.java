@@ -6,16 +6,16 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import org.springframework.validation.ValidationUtils;
 
+import securbank.models.ModificationRequest;
 import securbank.models.User;
 import securbank.utils.ContraintUtils;
 import securbank.dao.UserDao;
-
 /**
  * @author Ayush Gupta
  *
  */
-@Component("newInternalUserFormValidator")
-public class NewInternalUserFormValidator implements Validator{
+@Component("intenralEditUserFormValidator")
+public class InternalEditUserFormValidator implements Validator{
 
 	@Autowired
 	private UserDao userDao;
@@ -30,7 +30,7 @@ public class NewInternalUserFormValidator implements Validator{
      */	
 	@Override
 	public boolean supports(Class<?> clazz) {
-		return User.class.equals(clazz);
+		return ModificationRequest.class.equals(clazz);
 	}
 
 	/**
@@ -56,30 +56,17 @@ public class NewInternalUserFormValidator implements Validator{
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "state", "user.phone.required", "State is required");
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "role", "user.role.required", "Role is required");
 		
+		User current = userDao.findByUsername(user.getUsername());
+		if (current == null) {
+			errors.rejectValue("username", "user.username.invalid", "Invalid Username");
+		}
+		
 		if (!errors.hasFieldErrors("email")) {
 			if (!ContraintUtils.validateEmail(user.getEmail())) {
 				errors.rejectValue("email", "user.email.contraint", "Invalid Email");
 			}
-			else if (userDao.emailExists(user.getEmail().toLowerCase())) {
+			else if (!user.getEmail().equals(current.getEmail()) && userDao.emailExists(user.getEmail())) {
 				errors.rejectValue("email", "user.email.exists", "Email exists");
-			}
-		}
-		
-		if (!errors.hasFieldErrors("username")) {
-			if (!ContraintUtils.validateUsername(user.getUsername())) {
-				errors.rejectValue("username", "user.username.contraint", "Username can contain lowercase alphanumeric with (-,_) and length should be between 3 and 15");
-			}
-			else if (userDao.usernameExists(user.getUsername())) {
-				errors.rejectValue("username", "user.username.exists", "Username exists");
-			}
-		}
-		
-		if (!errors.hasFieldErrors("password")) {
-			if (!ContraintUtils.validatePassword(user.getPassword())) {
-				errors.rejectValue("password", "user.password.contraint", "Password should contain one letter, number and special character. Length of password should be between 6 and 20");
-			}
-			else if (!user.getPassword().equals(user.getConfirmPassword())) {
-				errors.rejectValue("password", "user.password.match", "Password doesn't match");
 			}
 		}
 		
@@ -87,7 +74,7 @@ public class NewInternalUserFormValidator implements Validator{
 			if (!ContraintUtils.validatePhone(user.getPhone())) {
 				errors.rejectValue("phone", "user.phone.contraint", "Invalid Phone");
 			}
-			else if (userDao.phoneExists(user.getPhone())) {
+			else if (!user.getPhone().equals(current.getPhone()) && userDao.phoneExists(user.getPhone())) {
 				errors.rejectValue("phone", "user.phone.exists", "Phone number exists");
 			}
 		}
@@ -96,5 +83,8 @@ public class NewInternalUserFormValidator implements Validator{
 			errors.rejectValue("zip", "user.zip.invalid", "Invalid Zip");
 		}
 
+		if (!errors.hasFieldErrors("role") && !ContraintUtils.validateInternalRole(user.getRole())) {
+			errors.rejectValue("role", "user.role.invalid", "Invalid Role");
+		}
 	} 
 }

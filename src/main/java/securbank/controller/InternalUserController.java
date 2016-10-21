@@ -61,6 +61,7 @@ public class InternalUserController {
 		UUID token = (UUID) session.getAttribute("verification.token");
 		if (token == null) {
 			logger.info("POST request: Signup internal user with invalid session token");
+			
 			return "redirect:/error?code=400&path=bad-request";
 		}
 		else {

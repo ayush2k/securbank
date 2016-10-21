@@ -6,9 +6,9 @@
 <title>Spring Security Example</title>
 </head>
 <body>
-	<div th:object="${user}">
-		<p>Username:
-		<p th:text="*{username}" /></p>
+	<form action="#"
+		th:action="@{/employee/user/request/delete/{id}(id=${modificationrequest.modificationRequestId})}"
+		th:object="${modificationrequest}" method="post">
 		<p>Email:
 		<p th:text="*{email}" /></p>
 		<p>First Name:
@@ -27,6 +27,9 @@
 		<p th:text="*{state}" /></p>
 		<p>Role:
 		<p th:text="*{role}" /></p>
-	</div>
+		<p>
+			<input type="submit" value="Delete" /> 
+		</p>
+	</form>
 </body>
 </html>

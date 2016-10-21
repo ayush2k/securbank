@@ -83,4 +83,15 @@ public class CommonController {
 		
 		return "redirect:/";
     }
+	
+	@GetMapping("/request/verify/{id}")
+    public String verifyEmailRequest(Model model, @PathVariable UUID id) {
+		if (userService.verifyModificationRequest("waiting", id) == false) {
+			logger.info("GET request: verification failed of request");
+			return "redirect:/error?code=400&path=request-invalid";
+		}
+		logger.info("GET request: verification of request");
+		
+		return "redirect:/";
+    }
 }

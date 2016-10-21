@@ -9,7 +9,9 @@
 	        <p>Max Limit: <p th:text="*{maxLimit}" /></p>
 	        <p>APR: <p th:text="*{apr}" /></p>
 	        <p>Balance: <p th:text="*{account.balance}" /></p>
-	        <p><a th:href="@{user/credit-card/transactions}">View Transactions</a></p>
+	        <p><a th:href="@{user/credit-card/transaction}">View Transactions</a></p>
+	        <p><a th:href="@{user/credit-card/transaction/create}">Make a Transaction</a></p>
+	        <p><a th:href="@{user/credit-card/payment}">Make a Payment</a></p>
 		</div>
     </body>
 </html>
