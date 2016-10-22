@@ -1,6 +1,9 @@
 package securbank.models;
 
-import java.time.LocalDateTime;
+import org.joda.time.LocalDateTime;
+
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.persistence.CascadeType;
@@ -11,6 +14,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -22,13 +26,13 @@ import org.hibernate.annotations.GenericGenerator;
  *
  */
 @Entity
-@Table(name = "CreditCard")
+@Table(name = "creditCard")
 public class CreditCard {
 	@Id
 	@GeneratedValue(generator = "uuid2")
 	@GenericGenerator(name = "uuid2", strategy = "uuid2")
 	@NotNull
-	@Column(name = "ccid", unique = true, nullable = false, columnDefinition = "BINARY(16)")
+	@Column(name = "ccId", unique = true, nullable = false, columnDefinition = "BINARY(16)")
 	private UUID ccId;
 
 	/**
@@ -55,6 +59,9 @@ public class CreditCard {
 	@Column(name = "created_on", nullable = false, updatable = false)
 	private LocalDateTime createdOn;
 
+	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "cc")
+	private Set<CreditCardStatement> statements = new HashSet<CreditCardStatement>(0);
+	
 	public CreditCard() {
 		
 	}
@@ -66,9 +73,10 @@ public class CreditCard {
 	 * @param maxLimit
 	 * @param active
 	 * @param createdOn
+	 * @param statements
 	 */
-	public CreditCard(UUID ccId, Account account, Double apr, Double maxLimit, Boolean active,
-			LocalDateTime createdOn) {
+	public CreditCard(UUID ccId, Account account, Double apr, Double maxLimit, Boolean active, LocalDateTime createdOn,
+			Set<CreditCardStatement> statements) {
 		super();
 		this.ccId = ccId;
 		this.account = account;
@@ -76,8 +84,8 @@ public class CreditCard {
 		this.maxLimit = maxLimit;
 		this.active = active;
 		this.createdOn = createdOn;
+		this.statements = statements;
 	}
-
 
 	/**
 	 * @return the ccId
@@ -86,14 +94,12 @@ public class CreditCard {
 		return ccId;
 	}
 
-
 	/**
 	 * @param ccId the ccId to set
 	 */
 	public void setCcId(UUID ccId) {
 		this.ccId = ccId;
 	}
-
 
 	/**
 	 * @return the account
@@ -102,14 +108,12 @@ public class CreditCard {
 		return account;
 	}
 
-
 	/**
 	 * @param account the account to set
 	 */
 	public void setAccount(Account account) {
 		this.account = account;
 	}
-
 
 	/**
 	 * @return the apr
@@ -118,14 +122,12 @@ public class CreditCard {
 		return apr;
 	}
 
-
 	/**
 	 * @param apr the apr to set
 	 */
 	public void setApr(Double apr) {
 		this.apr = apr;
 	}
-
 
 	/**
 	 * @return the maxLimit
@@ -134,14 +136,12 @@ public class CreditCard {
 		return maxLimit;
 	}
 
-
 	/**
 	 * @param maxLimit the maxLimit to set
 	 */
 	public void setMaxLimit(Double maxLimit) {
 		this.maxLimit = maxLimit;
 	}
-
 
 	/**
 	 * @return the active
@@ -150,14 +150,12 @@ public class CreditCard {
 		return active;
 	}
 
-
 	/**
 	 * @param active the active to set
 	 */
 	public void setActive(Boolean active) {
 		this.active = active;
 	}
-
 
 	/**
 	 * @return the createdOn
@@ -166,7 +164,6 @@ public class CreditCard {
 		return createdOn;
 	}
 
-
 	/**
 	 * @param createdOn the createdOn to set
 	 */
@@ -174,16 +171,29 @@ public class CreditCard {
 		this.createdOn = createdOn;
 	}
 
+	/**
+	 * @return the statements
+	 */
+	public Set<CreditCardStatement> getStatements() {
+		return statements;
+	}
 
+	/**
+	 * @param statements the statements to set
+	 */
+	public void setStatements(Set<CreditCardStatement> statements) {
+		this.statements = statements;
+	}
+
+	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
 		return "CreditCard [ccId=" + ccId + ", account=" + account + ", apr=" + apr + ", maxLimit=" + maxLimit
-				+ ", active=" + active + ", createdOn=" + createdOn + "]";
+				+ ", active=" + active + ", createdOn=" + createdOn + ", statements=" + statements + "]";
 	}
-
 
 	/**
 	 * Sets the created date/time to the current timestamp immediately before

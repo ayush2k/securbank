@@ -1,12 +1,14 @@
 package securbank.dao;
 
 import org.springframework.stereotype.Repository;
+import org.joda.time.LocalDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 import java.util.UUID;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 
+import securbank.models.Account;
 import securbank.models.Transfer;
 
 /**
@@ -75,6 +77,4 @@ public class TransferDaoImpl extends BaseDaoImpl<Transfer, UUID> implements Tran
 			return null;
 		}
 	}
-
-	
 }

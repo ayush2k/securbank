@@ -1,8 +1,9 @@
 package securbank.dao;
 
+import securbank.models.Account;
 import securbank.models.Transaction;
 
-import java.time.LocalDateTime;
+import org.joda.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,12 +17,6 @@ public interface TransactionDao extends BaseDao<Transaction, UUID>{
 	public List<Transaction> findAll();
 	public Transaction findByAccount(String accountNumber);
 	public Transaction findByAccountAndType(String accountNumber, String type);
-	public List<Transaction> findByAccountNumberAndDateRange(
-			long accountNumber,
-			LocalDateTime startDt,
-			LocalDateTime endDt,
-			int limit,
-			int offset);
+	public List<Transaction> findByAccountNumberAndDateRange(Account account, LocalDateTime start, LocalDateTime end);
 	public Transaction findByStatus(Boolean criticalStatus);
-	public Transaction findLastByAccountNumberBeforeDateTime(long accountNumber, LocalDateTime endDt);
 }

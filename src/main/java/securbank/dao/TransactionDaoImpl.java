@@ -10,6 +10,7 @@ import java.util.UUID;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 
+import securbank.models.Account;
 import securbank.models.Transaction;
 
 /**
@@ -99,39 +100,27 @@ public class TransactionDaoImpl extends BaseDaoImpl<Transaction, UUID> implement
 		}
 	}
 
+	/**
+     * Returns list of transactions in the table filtered by start and end date
+     * @param account
+     * 			the account to query
+     * @param start
+     * 			the start data for whjch to query
+     * @param end
+     * 			the end data for whjch to query
+     * @return transactions
+     */
 	@Override
-	@SuppressWarnings("unchecked")
-	public List<Transaction> findByAccountNumberAndDateRange(
-			long accountNumber,
-			LocalDateTime startDt,
-			LocalDateTime endDt,
-			int limit,
-			int offset) {
-		return (List<Transaction>) this.entityManager.createQuery("SELECT transaction FROM Transaction transaction"
-				+ " WHERE transaction.account_number = :accountNumber"
-				+ " AND transaction.created_on >= :startDt"
-				+ " AND transaction.created_on < :endDt"
-				+ " ORDER BY transaction.created_on, transaction.transaction_id")
-				.setParameter("accountNumber", accountNumber)
-				.setParameter("startDt", startDt)
-				.setParameter("endDt", endDt)
-				.setMaxResults(limit)
-				.setFirstResult(offset)
-				.getResultList();
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public Transaction findLastByAccountNumberBeforeDateTime(long accountNumber, LocalDateTime endDt) {
-		List<Transaction> tList = (List<Transaction>) this.entityManager.createQuery(
-				"SELECT transaction FROM Transaction transaction"
-				+ " WHERE transaction.account_number = :accountNumber"
+	public List<Transaction> findByAccountNumberAndDateRange(Account account, LocalDateTime start, LocalDateTime end) {
+		return this.entityManager.createQuery("SELECT transaction FROM Transaction transaction"
+				+ " WHERE transaction.account = :account"
+				+ " AND transaction.created_on >= :start"
 				+ " AND transaction.created_on < :end"
-				+ " ORDER BY transaction.created_on DESC"
-				+ " LIMIT 1")
-				.setParameter("accountNumber", accountNumber)
-				.setParameter("end", endDt)
+				+ " AND transaction.active < true"
+				+ " ORDER BY DESC transaction.created_on", Transaction.class)
+				.setParameter("account", account)
+				.setParameter("start", start)
+				.setParameter("end", end)
 				.getResultList();
-		return tList.isEmpty() ? null : tList.get(0);
 	}
 }

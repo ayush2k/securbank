@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+<title>Modification Requests</title>
+</head>
+<body>
+	<table>
+		<tr>
+			<td>From State</td>
+			<td>End State</td>
+			<td>View</td>
+		</tr>
+		<tr th:each="statement : ${statements}">
+			<td th:text="${statement.fromDate}"></td>
+			<td th:text="${statement.endDate}"></td>
+			<td><a
+				th:href="@{/user/creditcard/statement/{id}(id=${statement.statementId})}">View</a></td>
+			<td>
+		</tr>
+	</table>
+</body>
+</html>

@@ -1,21 +1,22 @@
 package securbank.services;
 
-import java.time.Duration;
+import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
+
 import java.util.List;
-
-import javax.jws.soap.SOAPBinding.Use;
-
-import java.time.LocalDateTime;
+import java.util.Set;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 
 import securbank.dao.CreditCardDao;
+import securbank.dao.CreditCardStatementDao;
 import securbank.models.Account;
 import securbank.models.CreditCard;
+import securbank.models.CreditCardStatement;
 import securbank.models.Transaction;
 import securbank.models.User;
 
@@ -32,6 +33,9 @@ public class CreditCardServiceImpl implements CreditCardService {
 	private CreditCardDao creditCardDao;
 	
 	@Autowired
+	private CreditCardStatementDao creditCardStatementDao; 
+	
+	@Autowired
 	Environment env;
 	
 	@Override
@@ -43,17 +47,22 @@ public class CreditCardServiceImpl implements CreditCardService {
 		account.setUser(user);
 		account.setActive(true);
 		
+		// Creates new statement for credit card
+		CreditCardStatement statement = new CreditCardStatement();
 		CreditCard cc = new CreditCard();
 		cc.setAccount(account);
 		cc.setApr(Double.parseDouble(env.getProperty("credit-card.apr")));
 		cc.setMaxLimit(Double.parseDouble(env.getProperty("credit-card.limit")));
 		cc.setActive(true);
-	
+		Set<CreditCardStatement> statements = cc.getStatements();
+		statements.add(statement);
+		cc.setStatements(statements);
+		
 		return creditCardDao.save(cc);
 	}
 
-	@Override
-	public double generateInterest(CreditCard cc, LocalDateTime startBillingPeriodDt, LocalDateTime endBillingPeriodDt) {
+//	@Override
+//	public double generateInterest(CreditCard cc, LocalDateTime startBillingPeriodDt, LocalDateTime endBillingPeriodDt) {
 //		if (!startBillingPeriodDt.isBefore(endBillingPeriodDt)) {
 //			// The end of the billing period must occur after the start.
 //			return 0d;
@@ -82,9 +91,9 @@ public class CreditCardServiceImpl implements CreditCardService {
 //		long intervalSeconds2 = Duration.between(startIntervalDt, endBillingPeriodDt).getSeconds();
 //		avgBalance += lastBalance * intervalSeconds2 / billingPeriodDurationSeconds;
 //		return avgBalance * cc.getApr() * billingPeriodDurationSeconds / SECONDS_PER_YEAR;
-		
-		return 0.00;
-	}
+//		
+//		return 0.00;
+//	}
 
 	/**
 	 * @param cc
@@ -116,5 +125,31 @@ public class CreditCardServiceImpl implements CreditCardService {
 	@Override
 	public CreditCard getCreditCardDetails(User user) {
 		return creditCardDao.findByUser(user);
+	}
+	
+	public Transaction createCreditCardTransaction(Transaction transaction, CreditCard cc) {
+		// TODO calls create transaction
+		Account account = cc.getAccount();
+		return new Transaction();
+	}
+	
+	public Transaction creditCardMakePayment(Transaction transaction, CreditCard cc) {
+		// TODO calls create transaction
+		Account account = cc.getAccount();
+		return new Transaction();
+	}
+	
+	public CreditCardStatement getStatementById(CreditCard cc, UUID statementId) {
+		CreditCardStatement statement = creditCardStatementDao.findById(statementId);
+		if (statement == null) {
+			return null;
+		}
+		List<Transaction> transactions = transactionService.getTransactionsByAccountNumberAndDateTimeRange(cc.getAccount(), statement.getStartDate().toLocalDateTime(LocalTime.fromMillisOfDay(0)), statement.getEndDate().toLocalDateTime(LocalTime.fromMillisOfDay(0)));
+		if (transactions == null) {
+			return statement;
+		}
+		statement.setTransactions(transactions);
+		
+		return statement;
 	}
 }
