@@ -1,14 +1,15 @@
 package securbank.services;
 
-import org.joda.time.LocalDateTime;
-import org.joda.time.LocalTime;
-
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.UUID;
 
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,72 +55,10 @@ public class CreditCardServiceImpl implements CreditCardService {
 		cc.setApr(Double.parseDouble(env.getProperty("credit-card.apr")));
 		cc.setMaxLimit(Double.parseDouble(env.getProperty("credit-card.limit")));
 		cc.setActive(true);
-		Set<CreditCardStatement> statements = cc.getStatements();
-		statements.add(statement);
-		cc.setStatements(statements);
+		statement.setCc(cc);
+		statement = creditCardStatementDao.save(statement);
 		
-		return creditCardDao.save(cc);
-	}
-
-//	@Override
-//	public double generateInterest(CreditCard cc, LocalDateTime startBillingPeriodDt, LocalDateTime endBillingPeriodDt) {
-//		if (!startBillingPeriodDt.isBefore(endBillingPeriodDt)) {
-//			// The end of the billing period must occur after the start.
-//			return 0d;
-//		}
-//		long billingPeriodDurationSeconds = Duration.between(startBillingPeriodDt, endBillingPeriodDt).getSeconds();
-//		int offset = 0;
-//		LocalDateTime startIntervalDt = startBillingPeriodDt;
-//		List<Transaction> transactions;
-//		Transaction lastTransaction = null;
-//		double avgBalance = 0d;
-//		do {
-//			transactions = transactionService.getTransactionsByAccountNumberAndDateTimeRange(cc.getAccount(), startBillingPeriodDt,
-//					endBillingPeriodDt, TRANSACTION_PAGE_SIZE, offset);
-//			for (Transaction transaction : transactions) {
-//				LocalDateTime endIntervalDt = transaction.getCreatedOn();
-//				long intervalSeconds = Duration.between(startIntervalDt, endIntervalDt).getSeconds();
-//				avgBalance += transaction.getOldBalance() * intervalSeconds / billingPeriodDurationSeconds;
-//				startIntervalDt = endIntervalDt;
-//			}
-//			if (!transactions.isEmpty()) {
-//				lastTransaction = transactions.get(transactions.size() - 1);
-//			}
-//			offset += TRANSACTION_PAGE_SIZE;
-//		} while (transactions.size() >= TRANSACTION_PAGE_SIZE);
-//		double lastBalance = getLastBalanceBeforeDateTime(cc, endBillingPeriodDt, lastTransaction);
-//		long intervalSeconds2 = Duration.between(startIntervalDt, endBillingPeriodDt).getSeconds();
-//		avgBalance += lastBalance * intervalSeconds2 / billingPeriodDurationSeconds;
-//		return avgBalance * cc.getApr() * billingPeriodDurationSeconds / SECONDS_PER_YEAR;
-//		
-//		return 0.00;
-//	}
-
-	/**
-	 * @param cc
-	 *            The credit card to use.
-	 * @param endDt
-	 *            The end datetime.
-	 * @param lastTransaction
-	 *            If not null, assume this is the last transaction to occur
-	 *            before the end datetime (to save from hitting the database
-	 *            again), unless this transaction's createdOn datetime is later
-	 *            than endDt.
-	 * @return The final balance at the end datetime.
-	 */
-	private double getLastBalanceBeforeDateTime(CreditCard cc, LocalDateTime endDt, Transaction lastTransaction) {
-//		Transaction lastTransaction2;
-//		if (lastTransaction == null || !lastTransaction.getCreatedOn().isBefore(endDt)) {
-//			lastTransaction2 = transactionService.getLastTransactionByAccountNumberBeforeDateTime(
-//					cc.getAccountNumber(), endDt);
-//		} else {
-//			lastTransaction2 = lastTransaction;
-//		}
-//		if (lastTransaction2 == null) {
-//			return 0d;
-//		}
-//		return lastTransaction2.getNewBalance();
-		return 0d;
+		return statement.getCc();
 	}
 
 	@Override
@@ -129,14 +68,26 @@ public class CreditCardServiceImpl implements CreditCardService {
 	
 	public Transaction createCreditCardTransaction(Transaction transaction, CreditCard cc) {
 		// TODO calls create transaction
-		Account account = cc.getAccount();
-		return new Transaction();
+		transaction.setAccount(cc.getAccount());
+		transaction = transactionService.initiateCreditCardTransaction(transaction);
+		
+		return transaction;
 	}
 	
-	public Transaction creditCardMakePayment(Transaction transaction, CreditCard cc) {
+	public Transaction creditCardMakePayment(CreditCard cc) {
 		// TODO calls create transaction
-		Account account = cc.getAccount();
-		return new Transaction();
+		Double balance = cc.getMaxLimit() - cc.getAccount().getBalance();
+		Transaction transaction = transactionService.createCardPaymentTransaction(balance, cc.getAccount().getUser());
+		if (transaction == null) {
+			return null;
+		}
+ 
+		List<CreditCardStatement> statements = creditCardStatementDao.findByCreditCardAndStatus(cc, "pending");
+		for(CreditCardStatement statement : statements) {
+			statement.setStatus("closed");
+			creditCardStatementDao.update(statement);
+		}
+		return transaction;
 	}
 	
 	public CreditCardStatement getStatementById(CreditCard cc, UUID statementId) {
@@ -144,12 +95,98 @@ public class CreditCardServiceImpl implements CreditCardService {
 		if (statement == null) {
 			return null;
 		}
-		List<Transaction> transactions = transactionService.getTransactionsByAccountNumberAndDateTimeRange(cc.getAccount(), statement.getStartDate().toLocalDateTime(LocalTime.fromMillisOfDay(0)), statement.getEndDate().toLocalDateTime(LocalTime.fromMillisOfDay(0)));
+		List<Transaction> transactions = transactionService.getTransactionsByAccountAndDateTimeRange(cc.getAccount(), statement.getStartDate().toLocalDateTime(LocalTime.fromMillisOfDay(0)), statement.getEndDate().toLocalDateTime(LocalTime.fromMillisOfDay(0)));
 		if (transactions == null) {
 			return statement;
 		}
 		statement.setTransactions(transactions);
 		
 		return statement;
+	}
+	
+	/*
+	 * Calls this function at 1 AM daily
+	 */
+	@Scheduled(cron = "0 00 1 * * *")
+	public void interestGeneration() {
+		List<CreditCardStatement> statements = creditCardStatementDao.findByPendingDateAndStatus(LocalDate.now(), "pending");
+		Map<CreditCard, Double> creditCards = new HashMap<CreditCard, Double>();
+		Double pendingBalance = 0d;
+		Account account = null;
+		Double apr = 0d;
+		
+		for (CreditCardStatement statement : statements) {
+			if (!creditCards.containsKey(statement.getCc())) {
+				creditCards.put(statement.getCc(), statement.getClosingBalance());
+			}
+			else {
+				creditCards.put(statement.getCc(), creditCards.get(statement.getCc()) + statement.getClosingBalance());
+			}
+		}
+		for (CreditCard cc : creditCards.keySet()) {
+			CreditCardStatement statement = new CreditCardStatement();
+			statement.setCc(cc);
+			creditCardStatementDao.save(statement);
+			
+			account = cc.getAccount();
+			pendingBalance = creditCards.get(cc);
+			apr = cc.getApr();
+			Transaction transaction = new Transaction();
+			transaction.setAccount(account); 
+			transaction.setAmount(pendingBalance * (apr / (30 * 100)));
+			transactionService.createInternalTransationByType(transaction, "APR");
+		}
+	}
+	
+	/*
+	 * Calls this function at 2 AM daily
+	 */
+	@Scheduled(cron = "0 00 2 * * *")
+	public void latefeesGeneration() {
+		List<CreditCardStatement> statements = creditCardStatementDao.findByGenerationDateAndStatus(LocalDate.now().withYear(2000), "pending");
+		Map<CreditCard, Integer> ccMap = new HashMap<CreditCard, Integer>();
+		Account account = null;
+		
+		for (CreditCardStatement statement : statements) {
+			if (!ccMap.containsKey(statement.getCc())) {
+				ccMap.put(statement.getCc(), 1);
+			}
+			else {
+				ccMap.put(statement.getCc(), ccMap.get(statement.getCc()) + 1);
+			}
+		}
+		for (CreditCard cc : ccMap.keySet()) {
+			account = cc.getAccount();
+			for (int i = 0; i< ccMap.get(cc); i++) {
+				Transaction transaction = new Transaction();
+				transaction.setAccount(account); 
+				transaction.setAmount(Integer.parseInt(env.getProperty("credit-card.latefee")));
+				transactionService.createInternalTransationByType(transaction, "LATE");
+			}
+		}
+	}
+	
+	/*
+	 * Calls this function at 3 AM daily
+	 */
+	@Scheduled(cron = "0 00 3 * * *")
+	public void statementGeneration() {
+		List<CreditCard> ccs = creditCardDao.findByGenerationDate(LocalDate.now().withYear(2000));
+		CreditCardStatement statement = null;
+		
+		for (CreditCard cc : ccs) {
+			for (CreditCardStatement stat : cc.getStatements()) {
+				if (stat.getStatus().equals("current")) {
+					stat.setClosingBalance(transactionService.getSumByAccountAndDateRange(cc.getAccount(), 
+							stat.getStartDate().toLocalDateTime(LocalTime.fromMillisOfDay(0)), 
+							stat.getEndDate().toLocalDateTime(LocalTime.fromMillisOfDay(0))));
+					stat.setStatus("pending");
+					creditCardStatementDao.update(stat);
+				}
+			}
+			statement = new CreditCardStatement();
+			statement.setCc(cc);
+			creditCardStatementDao.save(statement);
+		}
 	}
 }

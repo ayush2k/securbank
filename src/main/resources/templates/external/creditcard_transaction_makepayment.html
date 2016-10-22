@@ -13,17 +13,22 @@ xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
   <div class="alert alert-danger" th:if="${param.error}"></div>
 
   <div class="container">
-    <form class="form-horizontal" action="#" th:action="@{/user/credit-card/create}" th:object="${creditCard}" method="post">
+    <form class="form-horizontal" action="#" th:action="@{/user/credit-card/transaction/makepayment}" th:object="${creditcard}" method="post">
       <fieldset>
 
         <!-- Form Name -->
-        <legend>New Credit Card</legend>
-
+        <legend>Transaction</legend>
+		<div class="form-group">
+			<label class="col-md-4 control-label" for="textinput">Amount</label>
+			<div class="col-md-4">
+				<p id="textinput" name="textinput" class="form-control input-md" th:text="*{balance}" />
+			</div>
+		</div>
         <!-- Button -->
         <div class="form-group">
           <label class="col-md-4 control-label" for="submitbutton"></label>
           <div class="col-md-8">
-            <button id="submitbutton" name="submitbutton" type="submit" class="btn btn-primary">Create Credit Card</button>
+            <button id="submitbutton" name="submitbutton" type="submit" class="btn btn-primary">Make Payment</button>
           </div>
         </div>
 

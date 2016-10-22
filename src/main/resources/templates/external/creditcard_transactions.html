@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+<title>Transactions</title>
+</head>
+<body>
+	<table>
+		<tr>
+			<td>Date</td>
+			<td>Amount</td>
+			<td>Status</td>
+		</tr>
+		<tr th:each="transaction : ${transactions}">
+			<td th:text="${transaction.createdOn}"></td>
+			<td th:text="${transaction.amount}"></td>
+			<td th:text="${transaction.approvalStatus}"></td>
+		</tr>
+	</table>
+	
+	<a th:href="@{/user/credit-card/details}">View Credit Card Details</a>
+			
+</body>
+</html>

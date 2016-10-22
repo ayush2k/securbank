@@ -8,16 +8,14 @@
 <body>
 	<table>
 		<tr>
-			<td>From State</td>
-			<td>End State</td>
+			<td>Start Date</td>
+			<td>End Date</td>
 			<td>View</td>
 		</tr>
 		<tr th:each="statement : ${statements}">
-			<td th:text="${statement.fromDate}"></td>
+			<td th:text="${statement.startDate}"></td>
 			<td th:text="${statement.endDate}"></td>
-			<td><a
-				th:href="@{/user/creditcard/statement/{id}(id=${statement.statementId})}">View</a></td>
-			<td>
+			<td><a th:href="@{/user/credit-card/statement/{id}(id=${statement.statementId})}">View</a></td>
 		</tr>
 	</table>
 </body>

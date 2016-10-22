@@ -1,5 +1,6 @@
 package securbank.dao;
 
+import org.joda.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -53,5 +54,16 @@ public class CreditCardDaoImpl extends BaseDaoImpl<CreditCard, UUID> implements 
 			// returns null if no user if found
 			return null;
 		}
+	}
+
+	/* (non-Javadoc)
+	 * @see securbank.dao.CreditCardDao#findByGenerationDate(java.time.LocalDate)
+	 */
+	@Override
+	public List<CreditCard> findByGenerationDate(LocalDate date) {
+		return this.entityManager.createQuery("SELECT cc from CreditCard creditcard " + 
+				"WHERE cc.statementGeneration = :date", CreditCard.class)
+				.setParameter("date", date)
+				.getResultList();
 	}
 }

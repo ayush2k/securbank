@@ -7,10 +7,9 @@
 </head>
 <body>
 	<div th:object="${statement}">
-	<div>
-		Start Date: <p th:text="*{startDate}" /></p>
-		End Date: <p th:text="*{endDate}" /></p>
-	</div>
+		Start Date: <p th:text="*{startDate}" />
+		End Date: <p th:text="*{endDate}" />
+		Status: <p th:text="*{status}" />
 		<table>
 			<tr>
 				<td>Date</td>
@@ -18,13 +17,12 @@
 				<td>Amount</td>
 				<td>View</td>
 			</tr>
-			<tr th:each="transaction : ${transactions}">
+			<tr th:each="transaction : *{transactions}">
 				<td th:text="${transaction.createdOn}"></td>
 				<td th:text="${transaction.type}"></td>
 				<td th:text="${transaction.amount}"></td>
 				<td><a
 					th:href="@{/user/creditcard/statement/{id}/pdf(id=${statement.statementId})}">View PDF</a></td>
-				<td>
 			</tr>
 		</table>
 	</div>

@@ -3,6 +3,7 @@
  */
 package securbank.controller;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -21,6 +22,7 @@ import securbank.models.CreditCardStatement;
 import securbank.models.Transaction;
 import securbank.models.User;
 import securbank.services.CreditCardService;
+import securbank.services.TransactionService;
 import securbank.services.UserService;
 import securbank.validators.EditUserFormValidator;
 import securbank.validators.NewUserFormValidator;
@@ -36,7 +38,12 @@ public class ExternalUserController {
 	
 	@Autowired
 	CreditCardService creditCardService;
+	
+	@Autowired
+	TransactionService transactionService;
+	
 	final static Logger logger = LoggerFactory.getLogger(ExternalUserController.class);
+	
 	@Autowired 
 	NewUserFormValidator userFormValidator;
 	
@@ -137,7 +144,7 @@ public class ExternalUserController {
 		if (creditCardService.getCreditCardDetails(user) == null) {
 			return "redirect:/user/credit-card/create";
 		}
-		
+		model.addAttribute("transaction", new Transaction());
 		logger.info("GET request: create credit card transaction");
 		
         return "external/creditcard_transaction_create";
@@ -145,38 +152,7 @@ public class ExternalUserController {
 	
 	@PostMapping("/user/credit-card/transaction/create")
     public String createCreditCardTransaction(@ModelAttribute Transaction transaction, BindingResult bindingResult) {
-		User user = userService.getCurrentUser();
-		if (user == null) {
-			return "redirect:/error?code=user-notfound";
-		}
-		CreditCard cc = creditCardService.getCreditCardDetails(user);
-		if (creditCardService.getCreditCardDetails(user) == null) {
-			return "redirect:/user/credit-card/create";
-		}
-		// TODO: adds validation of transaction
-		logger.info("POST request: create credit card transaction");
-    	creditCardService.createCreditCardTransaction(transaction, cc);
-    	
-        return "redirect:/user/credit-card/details";
-    }
-	
-	@GetMapping("/user/credit-card/makepayment")
-    public String createCreditCardMakePayment(Model model) {
-		User user = userService.getCurrentUser();
-		if (user == null) {
-			return "redirect:/error?code=user-notfound";
-		}
-		if (creditCardService.getCreditCardDetails(user) == null) {
-			return "redirect:/user/credit-card/create";
-		}
-		
-		logger.info("GET request: make a payment for credit card");
-		
-        return "external/creditcard_transaction_create";
-    }
-	
-	@PostMapping("/user/credit-card/makepayment")
-    public String createCreditCardMakePayment(@ModelAttribute Transaction transaction, BindingResult bindingResult) {
+		// TODO validate transaction
 		User user = userService.getCurrentUser();
 		if (user == null) {
 			return "redirect:/error?code=user-notfound";
@@ -192,18 +168,72 @@ public class ExternalUserController {
         return "redirect:/user/credit-card/details";
     }
 	
-	@GetMapping("/user/credit-card/statement")
-    public String getCreditCardStatements(Model model) {
+	@GetMapping("/user/credit-card/transaction")
+    public String getCreditCardTransacttions(Model model) {
 		User user = userService.getCurrentUser();
 		if (user == null) {
 			return "redirect:/error?code=user-notfound";
+		} 
+		CreditCard cc = creditCardService.getCreditCardDetails(user);
+		if (cc == null) {
+			return "redirect:/user/credit-card/create";
+		}
+		List<Transaction> transactions = transactionService.getTransactionsByAccount(cc.getAccount());
+		model.addAttribute("transactions", transactions);
+		logger.info("GET request: get credit card all transactions");
+		
+        return "external/creditcard_transactions";
+    }
+	
+	@GetMapping("/user/credit-card/makepayment")
+    public String createCreditCardMakePayment(Model model) {
+		User user = userService.getCurrentUser();
+		if (user == null) {
+			return "redirect:/login";
+		}
+		CreditCard cc = creditCardService.getCreditCardDetails(user); 
+		if (cc == null) {
+			return "redirect:/user/credit-card/create";
+		}
+		cc.setBalance(cc.getMaxLimit() - cc.getAccount().getBalance());
+		model.addAttribute("creditcard", cc);
+		logger.info("GET request: make a payment for credit card");
+		
+        return "external/creditcard_transaction_makepayment";
+    }
+	
+	@PostMapping("/user/credit-card/transaction/makepayment")
+    public String createCreditCardMakePayment(@ModelAttribute Transaction transaction, BindingResult bindingResult) {
+		// TODO validate transaction
+		User user = userService.getCurrentUser();
+		if (user == null) {
+			return "redirect:/login";
 		}
 		CreditCard cc = creditCardService.getCreditCardDetails(user);
 		if (creditCardService.getCreditCardDetails(user) == null) {
 			return "redirect:/user/credit-card/create";
 		}
 		// TODO: adds validation of transaction
-		logger.info("POST request: get statements for credit card");
+		logger.info("POST request: make a payment for credit card");
+    	transaction = creditCardService.creditCardMakePayment(cc);
+    	if (transaction == null) {
+    		return "redirect:/error?code=400";
+    	}
+    	
+        return "redirect:/user/credit-card/details";
+    }
+	
+	@GetMapping("/user/credit-card/statement")
+    public String getCreditCardStatements(Model model) {
+		User user = userService.getCurrentUser();
+		if (user == null) {
+			return "redirect:/login";
+		}
+		CreditCard cc = creditCardService.getCreditCardDetails(user);
+		if (cc == null) {
+			return "redirect:/user/credit-card/create";
+		}
+		logger.info("GET request: get statements for credit card");
     	model.addAttribute("statements", cc.getStatements());
     	
         return "external/creditcard_statements";
@@ -213,7 +243,7 @@ public class ExternalUserController {
     public String getCreditCardStatements(@PathVariable UUID id, Model model) {
 		User user = userService.getCurrentUser();
 		if (user == null) {
-			return "redirect:/error?code=user-notfound";
+			return "redirect:/login";
 		}
 		CreditCard cc = creditCardService.getCreditCardDetails(user);
 		if (creditCardService.getCreditCardDetails(user) == null) {
@@ -228,6 +258,6 @@ public class ExternalUserController {
 		}
     	model.addAttribute("statement", statement);
     	
-        return "external/creditcard_statementdetails";
+        return "external/creditcard_statementdetail";
     }
 }
