@@ -24,10 +24,12 @@ import securbank.models.CreditCardStatement;
 import securbank.models.Transaction;
 import securbank.models.Transfer;
 import securbank.models.User;
+import securbank.models.ViewAuthorization;
 import securbank.services.CreditCardService;
 import securbank.services.TransactionService;
 import securbank.services.TransferService;
 import securbank.services.UserService;
+import securbank.services.ViewAuthorizationService;
 import securbank.validators.EditUserFormValidator;
 import securbank.validators.NewTransactionFormValidator;
 import securbank.validators.NewTransferFormValidator;
@@ -63,6 +65,9 @@ public class ExternalUserController {
 	
 	@Autowired
 	public HttpSession session;
+
+	@Autowired 
+	ViewAuthorizationService viewAuthorizationService;
 
 	@Autowired 
 	NewUserFormValidator userFormValidator;
@@ -277,9 +282,10 @@ public class ExternalUserController {
 		model.addAttribute("creditcard", cc);
 		logger.info("GET request: make a payment for credit card");
 		
-        return "external/creditcard_transaction_makepayment";
-    }
+	    return "external/creditcard_transaction_makepayment";
+	}
 	
+
 	@PostMapping("/user/credit-card/transaction/makepayment")
     public String createCreditCardMakePayment(@ModelAttribute Transaction transaction, BindingResult bindingResult) {
 		// TODO validate transaction
@@ -337,5 +343,62 @@ public class ExternalUserController {
     	model.addAttribute("statement", statement);
     	
         return "external/creditcard_statementdetail";
+	}
+
+	@GetMapping("/user/request")
+    public String getRequest(Model model) {
+		User user = userService.getCurrentUser();
+		if (user == null) {
+			return "redirect:/error";
+		}
+		
+		model.addAttribute("viewrequests", viewAuthorizationService.getPendingAuthorization(user));
+		
+        return "external/accessrequests";
+    }
+	
+	@GetMapping("/user/request/view/{id}")
+    public String getRequest(@PathVariable UUID id, Model model) {
+		User user = userService.getCurrentUser();
+		if (user == null) {
+			return "redirect:/login";
+		}
+		
+		ViewAuthorization authorization = viewAuthorizationService.getAuthorizationById(id);
+		if (authorization == null) {
+			return "redirect:/error?code=404";
+		}
+		if (authorization.getExternal() != user) {
+			return "redirect:/error?code=401";
+		}
+		
+		model.addAttribute("viewrequest", authorization);
+		
+        return "external/accessrequest_detail";
+    }
+	
+	@PostMapping("/user/request/{id}")
+    public String getRequests(@PathVariable UUID id, @ModelAttribute ViewAuthorization request, BindingResult bindingResult) {
+		User user = userService.getCurrentUser();
+		if (user == null) {
+			return "redirect:/login";
+		}
+		String status = request.getStatus();
+		if (status == null || !(status.equals("approved") || status.equals("rejected"))) {
+			return "redirect:/error?code=400";
+		}
+		
+		ViewAuthorization authorization = viewAuthorizationService.getAuthorizationById(id);
+		if (authorization == null) {
+			return "redirect:/error?code=404";
+		}
+		if (authorization.getExternal() != user) {
+			return "redirect:/error?code=401";
+		}
+		
+		authorization.setStatus(status);
+		authorization = viewAuthorizationService.approveAuthorization(authorization);
+		
+        return "redirect:/user/request";
     }
 }

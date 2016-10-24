@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+<title>Account Access Requests</title>
+</head>
+<body>
+	<table>
+		<tr>
+			<td>Employee Email</td>
+			<td>External User Email</td>
+			<td>View</td>
+		</tr>
+		<tr th:each="request : ${viewrequests}">
+			<td th:text="${request.employee.email}"></td>
+			<td th:text="${request.external.email}"></td>
+			<td><a
+				th:href="@{/manager/employee/request/view/{id}(id=${request.id})}">View</a></td>
+		</tr>
+	</table>
+</body>
+</html>
