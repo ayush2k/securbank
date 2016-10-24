@@ -4,15 +4,11 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
 
-<<<<<<< HEAD
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-=======
 import securbank.models.Account;
->>>>>>> 409a98d6e23c462532052f591e58770696f314bf
 import securbank.models.Transfer;
 
 /**

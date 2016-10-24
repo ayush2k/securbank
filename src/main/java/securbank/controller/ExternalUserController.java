@@ -3,12 +3,10 @@
  */
 package securbank.controller;
 
-<<<<<<< HEAD
 import java.util.List;
 import java.util.UUID;
-=======
+
 import javax.servlet.http.HttpSession;
->>>>>>> 409a98d6e23c462532052f591e58770696f314bf
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,24 +19,18 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
-<<<<<<< HEAD
 import securbank.models.CreditCard;
 import securbank.models.CreditCardStatement;
 import securbank.models.Transaction;
+import securbank.models.Transfer;
 import securbank.models.User;
 import securbank.services.CreditCardService;
 import securbank.services.TransactionService;
-=======
-import securbank.models.Transaction;
-import securbank.models.Transfer;
-import securbank.models.User;
-import securbank.services.TransactionService;
 import securbank.services.TransferService;
->>>>>>> 409a98d6e23c462532052f591e58770696f314bf
 import securbank.services.UserService;
+import securbank.validators.EditUserFormValidator;
 import securbank.validators.NewTransactionFormValidator;
 import securbank.validators.NewTransferFormValidator;
-import securbank.validators.EditUserFormValidator;
 import securbank.validators.NewUserFormValidator;
 
 
