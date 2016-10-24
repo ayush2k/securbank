@@ -3,8 +3,12 @@
  */
 package securbank.controller;
 
+<<<<<<< HEAD
 import java.util.List;
 import java.util.UUID;
+=======
+import javax.servlet.http.HttpSession;
+>>>>>>> 409a98d6e23c462532052f591e58770696f314bf
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,15 +21,26 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
+<<<<<<< HEAD
 import securbank.models.CreditCard;
 import securbank.models.CreditCardStatement;
 import securbank.models.Transaction;
 import securbank.models.User;
 import securbank.services.CreditCardService;
 import securbank.services.TransactionService;
+=======
+import securbank.models.Transaction;
+import securbank.models.Transfer;
+import securbank.models.User;
+import securbank.services.TransactionService;
+import securbank.services.TransferService;
+>>>>>>> 409a98d6e23c462532052f591e58770696f314bf
 import securbank.services.UserService;
+import securbank.validators.NewTransactionFormValidator;
+import securbank.validators.NewTransferFormValidator;
 import securbank.validators.EditUserFormValidator;
 import securbank.validators.NewUserFormValidator;
+
 
 /**
  * @author Ayush Gupta
@@ -44,6 +59,19 @@ public class ExternalUserController {
 	
 	final static Logger logger = LoggerFactory.getLogger(ExternalUserController.class);
 	
+	
+	@Autowired
+	NewTransactionFormValidator transactionFormValidator;
+	
+	@Autowired
+	private TransferService transferService;
+	
+	@Autowired
+	NewTransferFormValidator transferFormValidator;
+	
+	@Autowired
+	public HttpSession session;
+
 	@Autowired 
 	NewUserFormValidator userFormValidator;
 	
@@ -63,6 +91,64 @@ public class ExternalUserController {
         return "external/detail";
     }
 	
+	@GetMapping("/user/createtransaction")
+	public String newTransactionForm(Model model){
+		model.addAttribute("transaction", new Transaction());
+		logger.info("GET request: Extrernal user transaction creation request");
+		
+		return "external/createtransaction";
+	}
+	
+	@PostMapping("/user/createtransaction")
+    public String submitNewTransaction(@ModelAttribute Transaction transaction, BindingResult bindingResult) {
+		logger.info("POST request: Submit transaction");
+		
+		transactionFormValidator.validate(transaction, bindingResult);
+		
+		if(bindingResult.hasErrors()){
+			logger.info("POST request: createtransaction form with validation errors");
+			return "external/createtransaction";
+		}
+		
+		if(transaction.getType().contentEquals("CREDIT")){
+			if (transactionService.initiateCredit(transaction) == null) {
+				return "redirect:/";
+			}
+		}
+		else {
+			if (transactionService.initiateDebit(transaction) == null) {
+				return "redirect:/";
+			}
+		}
+		
+		return "redirect:/user/createtransaction";
+    }
+	
+	@GetMapping("/user/createtransfer")
+	public String newTransferForm(Model model){
+		model.addAttribute("transfer", new Transfer());
+		logger.info("GET request: Extrernal user transfer creation request");
+		return "external/createtransfer";
+	}
+	
+	@PostMapping("user/createtransfer")
+    public String submitNewTransfer(@ModelAttribute Transfer transfer, BindingResult bindingResult) {
+		logger.info("POST request: Submit transfer");
+		
+		transferFormValidator.validate(transfer, bindingResult);
+		
+		if(bindingResult.hasErrors()){
+			logger.info("POST request: createtransfer form with validation errors");
+			return "external/createtransfer";
+		}
+		
+		if(transferService.initiateTransfer(transfer)==null){
+			return "redirect:/";
+		}
+		
+		return "redirect:/user/createtransfer";
+	}
+
 	@GetMapping("/user/edit")
     public String editUser(Model model) {
 		User user = userService.getCurrentUser();

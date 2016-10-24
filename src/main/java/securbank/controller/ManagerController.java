@@ -18,8 +18,13 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import securbank.models.Transaction;
+import securbank.models.Transfer;
 import securbank.models.ModificationRequest;
 import securbank.models.User;
+import securbank.services.AccountService;
+import securbank.services.TransactionService;
+import securbank.services.TransferService;
 import securbank.services.UserService;
 import securbank.validators.ApprovalUserFormValidator;
 import securbank.validators.InternalEditUserFormValidator;
@@ -34,6 +39,14 @@ public class ManagerController {
 	private UserService userService;
 	
 	@Autowired
+	private TransactionService transactionService;
+	
+	@Autowired
+	private TransferService transferService;
+	
+	@Autowired
+	private AccountService accountService;
+	
 	private InternalEditUserFormValidator editUserFormValidator;
 
 	@Autowired
@@ -164,8 +177,8 @@ public class ManagerController {
 		}
 		model.addAttribute("users", users);
 		logger.info("GET request:  All external users");
-		
-        return "manager/externalusers";
+
+		return "manager/externalusers";
     }
 	
 	@GetMapping("/manager/user/{id}")
@@ -186,6 +199,70 @@ public class ManagerController {
         return "manager/userdetail";
     }
 	
+	@GetMapping("/manager/transactions")
+    public String getTransactions(Model model) {
+
+		List<Transaction> transactions = transactionService.getTransactionsByStatus("Pending");
+		if (transactions == null) {
+			return "redirect:/error?code=500";
+		}
+		model.addAttribute("transactions", transactions);
+		logger.info("GET request:  All pending transactions");
+		
+        return "manager/pendingtransactions";
+    }
+	
+	@GetMapping("/manager/transaction/{id}")
+    public String getTransactionRequest(Model model, @PathVariable() UUID id) {
+		Transaction transaction = transactionService.getTransactionById(id);
+		
+		if (transaction == null) {
+			return "redirect:/error?code=404&path=request-invalid";
+		}
+
+		// checks if manager is authorized for the request to approve
+		if (!transaction.getAccount().getUser().getType().equals
+				("external")) {
+			logger.warn("GET request: Manager unauthrorised request access");
+			return "redirect:/error?code=401&path=request-unauthorised";
+		}
+		model.addAttribute("transaction", transaction);
+		logger.info("GET request: Manager external transaction request by ID");
+		
+        return "manager/approvetransaction";
+    }
+	
+	@PostMapping("/manager/transaction/request/{id}")
+    public String approveRejectTransactions(@ModelAttribute Transaction trans, @PathVariable() UUID id, BindingResult bindingResult) {
+		
+		Transaction transaction = transactionService.getTransactionById(id);
+		if (transaction == null) {
+			return "redirect:/error?code=404&path=request-invalid";
+		}
+		
+		// checks if manager is authorized for the request to approve
+		if (!transaction.getAccount().getUser().getType().equalsIgnoreCase
+				("external")) {
+			logger.warn("GET request: Manager unauthrorised request access");
+					
+			return "redirect:/error?code=401&path=request-unauthorised";
+		}
+		
+		if("approved".equalsIgnoreCase(trans.getApprovalStatus())){
+			if(transactionService.isTransactionValid(transaction)==false && transaction.getType().equals("DEBIT")){
+				return "redirect:/error?code=404&path=amount-invalid";
+			}
+			transactionService.approveTransaction(transaction);
+		}
+		else if ("rejected".equalsIgnoreCase(trans.getApprovalStatus())) {
+			transactionService.declineTransaction(transaction);
+		}
+		
+		logger.info("GET request: Manager approve/decline external transaction requests");
+		
+        return "redirect:/manager/transactions";
+    }
+			
 	@GetMapping("/manager/user/edit/{id}")
 	public String editUser(Model model, @PathVariable UUID id) {
 		User user = userService.getUserByIdAndActive(id);
@@ -238,16 +315,95 @@ public class ManagerController {
 		}
 		if (!user.getType().equals("external")) {
 			logger.warn("GET request: Admin unauthrorised request access");
+			return "redirect:/error?code=401&path=request-unauthorised";
+		}
+			model.addAttribute("user", user);
+			logger.info("GET request: Delete external user");
 			
+			return "manager/externalusers_delete";
+	}
+		
+	
+	@GetMapping("/manager/transfers")
+    public String getTransfers(Model model) {
+		logger.info("GET request:  All pending transfers");
+		
+		List<Transfer> transfers = transferService.getTransfersByStatus("Pending");
+		if (transfers == null) {
+			return "redirect:/error?code=500";
+		}
+		model.addAttribute("transfers", transfers);
+		
+        return "manager/pendingtransfers";
+    }
+	
+	@PostMapping("/manager/transfer/request/{id}")
+    public String approveRejectTransfer(@ModelAttribute Transfer trans, @PathVariable() UUID id, BindingResult bindingResult) {
+		
+		Transfer transfer = transferService.getTransferById(id);
+		if (transfer == null) {
+			return "redirect:/error?code=404&path=request-invalid";
+		}
+		
+		//give error if account does not exist
+		if (!accountService.accountExists(transfer.getToAccount())) {
+			logger.warn("TO account does not exist");	
+			return "redirect:/error?code=401&path=request-invalid";
+		}
+		
+		// checks if manager is authorized for the request to approve
+		if (!transfer.getToAccount().getUser().getType().equalsIgnoreCase("external")) {
+			logger.warn("Transafer made TO non external account");
 			return "redirect:/error?code=401&path=request-unauthorised";
 		}
 		
-		model.addAttribute("user", user);
-		logger.info("GET request: Delete external user");
+		if (!transfer.getFromAccount().getUser().getType().equalsIgnoreCase("external")) {
+			logger.warn("Transafer made FROM non external account");
+					
+			return "redirect:/error?code=401&path=request-unauthorised";
+		}
+
+		if("approved".equalsIgnoreCase(trans.getStatus())){
+			//check if transfer is valid in case modified
+			if(transferService.isTransferValid(transfer)==false){
+				return "redirect:/error?code=401&path=amount-invalid";
+			}
+			transferService.approveTransfer(transfer);
+		}
+		else if ("rejected".equalsIgnoreCase(trans.getStatus())) {
+			transferService.declineTransfer(transfer);
+		}
 		
-		return "manager/externalusers_delete";
-	}
+		logger.info("GET request: Manager approve/decline external transaction requests");
+		
+        return "redirect:/manager/transfers";
+    }
 	
+	@GetMapping("/manager/transfer/{id}")
+    public String getTransferRequest(Model model, @PathVariable() UUID id) {
+		Transfer transfer = transferService.getTransferById(id);
+		
+		if (transfer == null) {
+			return "redirect:/error?code=404&path=request-invalid";
+		}
+
+		// checks if manager is authorized for the request to approve
+		if (!transfer.getToAccount().getUser().getType().equalsIgnoreCase("external")) {
+			logger.warn("Transafer made TO non external account");		
+			return "redirect:/error?code=401&path=request-unauthorised";
+		}
+				
+		if (!transfer.getFromAccount().getUser().getType().equalsIgnoreCase("external")) {
+			logger.warn("Transafer made FROM non external account");
+			return "redirect:/error?code=401&path=request-unauthorised";
+		}
+				
+		model.addAttribute("transfer", transfer);
+		logger.info("GET request: Manager external transfer request by ID");
+		
+        return "manager/approvetransfer";
+	}
+			
 	@PostMapping("/manager/user/delete/{id}")
     public String deleteSubmit(@ModelAttribute User user, @PathVariable UUID id, BindingResult bindingResult) {
 		User current = userService.getUserByIdAndActive(id);
@@ -265,7 +421,6 @@ public class ManagerController {
     	
         return "redirect:/manager/user";
     }
-
 	
 	@GetMapping("/manager/user/request/delete/{id}")
     public String deleteRequest(Model model, @PathVariable() UUID id) {
@@ -307,5 +462,6 @@ public class ManagerController {
 		logger.info("POST request: Manager approves modification request");
 		
         return "redirect:/manager/user/request";
+
     }
 }

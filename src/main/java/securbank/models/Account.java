@@ -55,6 +55,9 @@ public class Account {
 	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "account")
 	private Set<CreditCard> creditCards = new HashSet<CreditCard>(0);
 	
+	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "account")
+	private Set<Transaction> transactions = new HashSet<Transaction>(0);
+	
 	public Account() {
 		
 	}
@@ -67,9 +70,10 @@ public class Account {
 	 * @param createdOn
 	 * @param active
 	 * @param creditCards
+	 * @param transactions
 	 */
 	public Account(Long accountNumber, User user, Double balance, String type, LocalDateTime createdOn, Boolean active,
-			Set<CreditCard> creditCards) {
+			Set<CreditCard> creditCards, Set<Transaction> transactions) {
 		super();
 		this.accountNumber = accountNumber;
 		this.user = user;
@@ -78,6 +82,7 @@ public class Account {
 		this.createdOn = createdOn;
 		this.active = active;
 		this.creditCards = creditCards;
+		this.transactions = transactions;
 	}
 
 	/**
@@ -178,13 +183,27 @@ public class Account {
 		this.creditCards = creditCards;
 	}
 
+	/**
+	 * @return the transactions
+	 */
+	public Set<Transaction> getTransactions() {
+		return transactions;
+	}
+
+	/**
+	 * @param transactions the transactions to set
+	 */
+	public void setTransactions(Set<Transaction> transactions) {
+		this.transactions = transactions;
+	}
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
 		return "Account [accountNumber=" + accountNumber + ", user=" + user + ", balance=" + balance + ", type=" + type
-				+ ", createdOn=" + createdOn + ", active=" + active + ", creditCards=" + creditCards + "]";
+				+ ", createdOn=" + createdOn + ", active=" + active + ", creditCards=" + creditCards + ", transactions="
+				+ transactions + "]";
 	}
-	
 }

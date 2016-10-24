@@ -6,9 +6,13 @@ import java.util.UUID;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 
+<<<<<<< HEAD
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+=======
+import securbank.models.Account;
+>>>>>>> 409a98d6e23c462532052f591e58770696f314bf
 import securbank.models.Transfer;
 
 /**
@@ -46,17 +50,11 @@ public class TransferDaoImpl extends BaseDaoImpl<Transfer, UUID> implements Tran
      * @return transfers
      */
 	@Override
-	public Transfer findTransferByFromAccount(String fromAccountnumber) {
-		try {
-			return (Transfer) this.entityManager.createQuery("SELECT transfer from Transfer transfer"
-					+ " where transfer.fromAccountnumber = :accountNumber")
-					.setParameter("fromAccountnumber", fromAccountnumber)
-					.getSingleResult();
-		}
-		catch(NoResultException e) {
-			// returns null if no trasnfer is found
-			return null;
-		}
+	public List<Transfer> findTransferByFromAccount(Account account) {
+		return this.entityManager.createQuery("SELECT transfer from Transfer transfer"
+				+ " where transfer.fromAccount = :account", Transfer.class)
+				.setParameter("account", account)
+				.getResultList();
 	}
 	
 	/**
@@ -65,16 +63,28 @@ public class TransferDaoImpl extends BaseDaoImpl<Transfer, UUID> implements Tran
      * @return transfers
      */
 	@Override
-	public Transfer findTransferByToAccount(String toAccountnumber) {
-		try {
-			return (Transfer) this.entityManager.createQuery("SELECT transfer from Transfer transfer"
-					+ " where transfer.toAccountnumber = :toAccountnumber")
-					.setParameter("toAccountnumber", toAccountnumber)
-					.getSingleResult();
-		}
-		catch(NoResultException e) {
-			// returns null if no trasnfer is found
-			return null;
-		}
+	public List<Transfer> findTransferByToAccount(Account toAccountnumber) {
+		return this.entityManager.createQuery("SELECT transfer from Transfer transfer"
+				+ " where transfer.toAccountnumber = :toAccountnumber", Transfer.class)
+				.setParameter("toAccountnumber", toAccountnumber)
+				.getResultList();
+		
+	}
+
+	@Override
+	public List<Transfer> findByApprovalStatus(String status) {
+		return this.entityManager.createQuery("SELECT transfer from Transfer transfer"
+				+ " where transfer.status = :status", Transfer.class)
+				.setParameter("status", status)
+				.getResultList();
+	}
+
+	@Override
+	public List<Transfer> findPendingTransferByFromAccount(Account fromAccount) {
+		return this.entityManager.createQuery("SELECT transfer from Transfer transfer"
+				+ " where transfer.fromAccount = :account AND transfer.status = :status", Transfer.class)
+				.setParameter("account", fromAccount)
+				.setParameter("status", "Pending")
+				.getResultList();
 	}
 }

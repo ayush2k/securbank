@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,7 @@ import securbank.dao.ModificationRequestDao;
 import securbank.dao.NewUserRequestDao;
 import securbank.dao.UserDao;
 import securbank.models.Account;
+import securbank.models.ChangePasswordRequest;
 import securbank.models.ModificationRequest;
 import securbank.models.NewUserRequest;
 import securbank.models.User;
@@ -289,6 +291,7 @@ public class UserServiceImpl implements UserService {
 		return newUserRequest;
 	}
 	
+
 	/**
      * Creates external user modification request
      * 
@@ -598,5 +601,26 @@ public class UserServiceImpl implements UserService {
 	public void deleteModificationRequest(ModificationRequest request) {
 		modificationRequestDao.remove(request);
 		return;
+	}
+	
+	@Override
+	public boolean verifyCurrentPassword(User user, String password) {
+		if (BCrypt.checkpw(password, user.getPassword()))
+			return true;
+	
+		return false;
+	}
+	
+	@Override
+	public User changeUserPassword(User user, ChangePasswordRequest model){
+		user.setPassword(encoder.encode(model.getNewPassword()));			
+		userDao.update(user);
+		
+		return user;			
+	}
+
+	@Override
+	public User getUserByEmail(String email) {
+		return userDao.findByUsernameOrEmail(email);
 	}
 }

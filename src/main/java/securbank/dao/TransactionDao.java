@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.UUID;
 
 import org.joda.time.LocalDateTime;
-
 import securbank.models.Account;
 import securbank.models.Transaction;
 
@@ -17,6 +16,7 @@ import securbank.models.Transaction;
 public interface TransactionDao extends BaseDao<Transaction, UUID>{
 	public List<Transaction> findAll();
 	public List<Transaction> findByAccount(Account account);
+	public List<Transaction> findByAccount(String accountNumber);
 	public List<Transaction> findByAccountAndType(Long accountNumber, String type);
 	public List<Transaction> findByCriticalStatus(Boolean criticalStatus);
 	public List<Transaction> findByApprovalStatus(String status);

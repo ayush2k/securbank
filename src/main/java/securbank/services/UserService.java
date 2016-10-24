@@ -1,12 +1,12 @@
-/**
- * 
- */
 package securbank.services;
 
 import java.util.List;
 import java.util.UUID;
 
+import securbank.models.CreatePasswordRequest;
+import securbank.models.ChangePasswordRequest;
 import securbank.models.ModificationRequest;
+
 import securbank.models.NewUserRequest;
 import securbank.models.User;
 
@@ -34,4 +34,8 @@ public interface UserService {
 	public boolean verifyModificationRequest(String status, UUID requestId);
 	public boolean verifyModificationRequestUserType(UUID requestId, String type);
 	public void deleteModificationRequest(ModificationRequest request);
+	public boolean verifyCurrentPassword(User user,String password);
+	public User changeUserPassword(User user, ChangePasswordRequest model);
+	public User getUserByEmail(String email);
 }
+

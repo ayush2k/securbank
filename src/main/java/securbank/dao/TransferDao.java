@@ -3,6 +3,7 @@ package securbank.dao;
 import java.util.List;
 import java.util.UUID;
 
+import securbank.models.Account;
 import securbank.models.Transfer;
 
 /**
@@ -12,6 +13,8 @@ import securbank.models.Transfer;
  */
 public interface TransferDao extends BaseDao<Transfer, UUID>{
 	public List<Transfer> findAll();
-	public Transfer findTransferByFromAccount(String fromAccountnumber);
-	public Transfer findTransferByToAccount(String toAccountnumber);
+	public List<Transfer> findTransferByFromAccount(Account fromAccount);
+	public List<Transfer> findTransferByToAccount(Account toAccount);
+	public List<Transfer> findByApprovalStatus(String approvalStatus);
+	public List<Transfer> findPendingTransferByFromAccount(Account fromAccount);
 }

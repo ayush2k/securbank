@@ -48,20 +48,21 @@ public class TransactionDaoImpl extends BaseDaoImpl<Transaction, UUID> implement
      */
 	@Override
 	public List<Transaction> findByAccount(Account account) {
-		try {
-			return this.entityManager.createQuery("SELECT transaction from Transaction transaction"
-					+ " WHERE transaction.account = :account"
-					+ " AND active = true"
-					+ " ORDER BY transaction.createdOn DESC", Transaction.class)
-					.setParameter("account", account)
-					.getResultList();
-		}
-		catch(NoResultException e) {
-			// returns null if no transaction is found
-			return null;
-		}
+		return this.entityManager.createQuery("SELECT transaction from Transaction transaction"
+				+ " WHERE transaction.account = :account"
+				+ " AND active = true"
+				+ " ORDER BY transaction.createdOn DESC", Transaction.class)
+				.setParameter("account", account)
+				.getResultList();
 	}
 
+	@SuppressWarnings("unchecked")
+	public List<Transaction> findByAccount(String accountNumber) {
+		return (List<Transaction>) this.entityManager.createQuery("SELECT transaction from Transaction transaction"
+				+ " where transaction.accountNumber = :accountNumber")
+				.setParameter("accountNumber", accountNumber)
+				.getResultList();
+	}
 	
 	/**
      * Returns list of transactions in the table filtered by account number and type
