@@ -67,7 +67,6 @@ public class CreditCardServiceImpl implements CreditCardService {
 	}
 	
 	public Transaction createCreditCardTransaction(Transaction transaction, CreditCard cc) {
-		// TODO calls create transaction
 		transaction.setAccount(cc.getAccount());
 		transaction = transactionService.initiateCreditCardTransaction(transaction);
 		

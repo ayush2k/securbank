@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import securbank.dao.TransactionDao;
+import securbank.dao.TransferDao;
 import securbank.models.Account;
 import securbank.models.Transaction;
 import securbank.models.User;
@@ -26,9 +27,6 @@ public class TransactionServiceImpl implements TransactionService {
 	@Autowired
  	private EmailService emailService;
  	
-	@Autowired 
-	private UserService userService;
-	
  	@Autowired
  	private Environment env;
  	
@@ -41,54 +39,29 @@ public class TransactionServiceImpl implements TransactionService {
 	}
 	
 	@Override
-	public Transaction initiateCredit(Transaction transaction) {
-		logger.info("Initiating new credit request");
-		
-		User currentUser = userService.getCurrentUser();
-		if(currentUser==null){
-			logger.info("Current logged in user is null");
-			return null;
-		}
-		
-		//get user's checking account 
-		logger.info("Getting current user's checking account");
-		for (Account acc: userService.getCurrentUser().getAccounts()){
-			if (acc.getType().equalsIgnoreCase("checking")){
-				transaction.setAccount(acc);
-			}
-		}
-		transaction.setApprovalStatus("Pending");
-		if (transaction.getAmount() > Double.parseDouble(env.getProperty("critical.amount"))) {
-			transaction.setCriticalStatus(true);
-		}
-
-		transaction.setType("CREDIT");
-		transaction.setCreatedOn(LocalDateTime.now());
-		transaction.setActive(true);
-		transaction = transactionDao.save(transaction);
-		logger.info("After TransactionDao save");
-
-		//send email to user
-		User user = transaction.getAccount().getUser();
-		message = new SimpleMailMessage();
-		message.setText(env.getProperty("external.user.transaction.credit.body"));
-		message.setSubject(env.getProperty("external.user.transaction.subject"));
-		message.setTo(user.getEmail());
-		emailService.sendEmail(message);
-		
-		return transaction;
-	}
-
-	@Override
 	public Transaction initiateCreditCardTransaction(Transaction transaction) {
 		logger.info("Initiating new credit request");
 		
+		Account account = transaction.getAccount();
+		Double pendingAmount = 0.0;
+		
+		//in Transaction model
+		for(Transaction trans: transactionDao.findPendingByAccountAndType(account, "DEBIT")){
+			pendingAmount += trans.getAmount();
+		}	
+		
+		if(pendingAmount + transaction.getAmount() > transaction.getAccount().getBalance()){
+			logger.info("Invalid Debit transaction: amount requested is more than permitted");
+			
+			return null;
+		}
+		
 		transaction.setApprovalStatus("Pending");
 		if (transaction.getAmount() > Double.parseDouble(env.getProperty("critical.amount"))) {
 			transaction.setCriticalStatus(true);
 		}
-
-		transaction.setType("CREDIT");
+		
+		transaction.setType("DEBIT");
 		transaction.setCreatedOn(LocalDateTime.now());
 		transaction.setActive(true);
 		transaction = transactionDao.save(transaction);
@@ -149,32 +122,25 @@ public class TransactionServiceImpl implements TransactionService {
 		
 		Transaction transaction = new Transaction();
 		transaction.setAmount(amount);
-		Double pendingAmount = 0.0;
-		
-		//in Transaction model
-		for(Transaction trans: transactionDao.findPendingByAccountAndType(account, "CREDIT")){
-			pendingAmount += trans.getAmount();
-		}	
-		
-//		//check for pending transfer amounts
-//		for(Transfer transf: transferDao.findTransferByFromAccount(account)){
-//			pendingAmount += transf.getAmount();
-//		}
-		
-		if(pendingAmount + transaction.getAmount() > transaction.getAccount().getBalance()){
-			return null;
-		}
-		
 		transaction.setApprovalStatus("Approved");
 		if (transaction.getAmount() > Double.parseDouble(env.getProperty("critical.amount"))) {
 			transaction.setCriticalStatus(true);
 		}
 
-		transaction.setType("DEBIT");
+		transaction.setType("CREDIT");
 		transaction.setCreatedOn(LocalDateTime.now());
 		transaction.setActive(true);
 		transaction = transactionDao.save(transaction);
 
 		return transaction;
+	}
+
+	/* (non-Javadoc)
+	 * @see securbank.services.TransactionService#initiateCredit(securbank.models.Transaction)
+	 */
+	@Override
+	public Transaction initiateCredit(Transaction transaction) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

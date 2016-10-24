@@ -15,16 +15,14 @@
 				<td>Date</td>
 				<td>Type</td>
 				<td>Amount</td>
-				<td>View</td>
 			</tr>
 			<tr th:each="transaction : *{transactions}">
 				<td th:text="${transaction.createdOn}"></td>
 				<td th:text="${transaction.type}"></td>
 				<td th:text="${transaction.amount}"></td>
-				<td><a
-					th:href="@{/user/creditcard/statement/{id}/pdf(id=${statement.statementId})}">View PDF</a></td>
 			</tr>
 		</table>
+		<a th:href="@{/user/creditcard/statement/{id}/pdf(id=${statement.statementId})}">View</a>
 	</div>
 </body>
 </html>

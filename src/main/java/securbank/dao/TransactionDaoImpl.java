@@ -217,7 +217,7 @@ public class TransactionDaoImpl extends BaseDaoImpl<Transaction, UUID> implement
 				+ " WHERE transaction.account = :account"
 				+ " AND transaction.createdOn >= :start"
 				+ " AND transaction.createdOn < :end"
-				+ " AND transaction.active < true"
+				+ " AND transaction.active = true"
 				+ " ORDER BY transaction.createdOn DESC", Transaction.class)
 				.setParameter("account", account)
 				.setParameter("start", start)
