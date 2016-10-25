@@ -1,26 +1,19 @@
 package securbank.models;
 
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
-import java.util.HashSet;
-import java.util.Set;
 
-
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import javax.persistence.CascadeType; 
-import javax.persistence.FetchType;
-import javax.persistence.OneToMany;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.validator.constraints.Email;
@@ -31,20 +24,19 @@ import org.joda.time.LocalDateTime;
  *
  */
 @Entity
-@Table(name = "User")
-public class User {
-	
+@Table(name = "modificationRequest")
+public class ModificationRequest {
 	
 	@Id
 	@GeneratedValue(generator = "uuid2")
 	@GenericGenerator(name = "uuid2", strategy = "uuid2")
-	@NotNull
-	@Column(name = "userId", unique = true, nullable = false, columnDefinition = "BINARY(16)")
-	private UUID userId;
+	@Column(name = "modificationRequestId", unique = true, columnDefinition = "BINARY(16)")
+	private UUID modificationRequestId;
 	
 	@NotNull
-	@Size(min = 2, max = 35)
-	@Column(name = "username", unique = true, nullable = false)
+	private String role;
+	
+	@Transient
 	private String username;
 	
 	@NotNull
@@ -52,25 +44,24 @@ public class User {
 	private String password;
 	
 	@NotNull
-	@Size(min = 2, max = 50)
+	@Size(min = 2)
 	private String firstName;
 	
-	@Size(min = 2, max = 50)
+	@Size(min = 0)
 	private String middleName;
 	
 	@NotNull
-	@Size(min = 2, max = 50)
+	@Size(min = 2)
 	private String lastName;
 	
 	@NotNull
 	@Email
-	@Size(min = 2, max = 35)
-	@Column(name = "email", unique = true, nullable = false)
+	@Column(name = "email")
 	private String email;
 
 	@NotNull
 	@Size(min = 10, max = 10)
-	@Column(name = "phone", unique = true, nullable = false)
+	@Column(name = "phone")
 	private String phone;
 
 	@NotNull
@@ -86,54 +77,40 @@ public class User {
 
 	@NotNull
 	@Size(min = 2, max = 35)
-	private String state;
+	private String State;
 
 	@NotNull
 	@Size(min = 5, max = 5)
 	private String zip;
-
+	
 	@NotNull
-	@Column(name = "createdOn", nullable = false, updatable = false)
+	private String userType;
+	@NotNull
+	@Column(name = "createdOn", updatable = false)
 	private LocalDateTime createdOn;
 
-	@Column(name = "modifiedOn", nullable = true, updatable = true)
+	@Column(name = "modifiedOn", updatable = true)
 	private LocalDateTime modifiedOn;
-
-	@Column(name = "lastLogin", nullable = true, updatable = true)
-	private LocalDateTime lastLogin;
-
+	
 	@NotNull
-	@Column(name = "active", nullable = false, columnDefinition = "BIT")
+	@Column(name = "status")
+	private String status;
+	
+	@NotNull
+	@Column(name = "active", columnDefinition = "BIT")
 	private Boolean active;
 	
-	/** One to many relation ship  */
-	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
-	private Set<Account> accounts = new HashSet<Account>(0);
-
-	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
-	private Set<Otp> otps = new HashSet<Otp>(0);
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "approvedByUserId", referencedColumnName = "userId")
+	private User approvedBy;
 	
-	
-	/**
-	 * @return otp
-	 */
-	public Set<Otp> getOtps() {
-		return otps;
-	}
+	@ManyToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "userId", referencedColumnName = "userId")
+	private User user;
 
 	/**
-	 * @param otp
-	 */
-	public void setOtps(Set<Otp> otps) {
-		this.otps = otps;
-	}
-
-	public User() {
-		
-	}
-	
-	/**
-	 * @param userId
+	 * @param modificationRequestId
+	 * @param role
 	 * @param username
 	 * @param password
 	 * @param firstName
@@ -146,18 +123,21 @@ public class User {
 	 * @param city
 	 * @param state
 	 * @param zip
+	 * @param userType
 	 * @param createdOn
 	 * @param modifiedOn
-	 * @param lastLogin
+	 * @param status
 	 * @param active
-	 * @param accounts
+	 * @param approvedBy
+	 * @param user
 	 */
-	public User(UUID userId, String username, String password, String firstName, String middleName, String lastName,
-			String email, String phone, String addressLine1, String addressLine2, String city, String state, String zip,
-			LocalDateTime createdOn, LocalDateTime modifiedOn, LocalDateTime lastLogin, Boolean active,
-			Set<Account> accounts) {
+	public ModificationRequest(UUID modificationRequestId, String role, String username, String password,
+			String firstName, String middleName, String lastName, String email, String phone, String addressLine1,
+			String addressLine2, String city, String state, String zip, String userType, LocalDateTime createdOn,
+			LocalDateTime modifiedOn, String status, Boolean active, User approvedBy, User user) {
 		super();
-		this.userId = userId;
+		this.modificationRequestId = modificationRequestId;
+		this.role = role;
 		this.username = username;
 		this.password = password;
 		this.firstName = firstName;
@@ -168,27 +148,47 @@ public class User {
 		this.addressLine1 = addressLine1;
 		this.addressLine2 = addressLine2;
 		this.city = city;
-		this.state = state;
+		State = state;
 		this.zip = zip;
+		this.userType = userType;
 		this.createdOn = createdOn;
 		this.modifiedOn = modifiedOn;
-		this.lastLogin = lastLogin;
+		this.status = status;
 		this.active = active;
-		this.accounts = accounts;
-	}
+		this.approvedBy = approvedBy;
+		this.user = user;
+	}	
 	
-	/**
-	 * @return the userId
-	 */
-	public UUID getUserId() {
-		return userId;
+	public ModificationRequest() {
+		
 	}
 
 	/**
-	 * @param userId the userId to set
+	 * @return the modificationRequestId
 	 */
-	public void setUserId(UUID userId) {
-		this.userId = userId;
+	public UUID getModificationRequestId() {
+		return modificationRequestId;
+	}
+
+	/**
+	 * @param modificationRequestId the modificationRequestId to set
+	 */
+	public void setModificationRequestId(UUID modificationRequestId) {
+		this.modificationRequestId = modificationRequestId;
+	}
+
+	/**
+	 * @return the role
+	 */
+	public String getRole() {
+		return role;
+	}
+
+	/**
+	 * @param role the role to set
+	 */
+	public void setRole(String role) {
+		this.role = role;
 	}
 
 	/**
@@ -335,14 +335,14 @@ public class User {
 	 * @return the state
 	 */
 	public String getState() {
-		return state;
+		return State;
 	}
 
 	/**
 	 * @param state the state to set
 	 */
 	public void setState(String state) {
-		this.state = state;
+		State = state;
 	}
 
 	/**
@@ -357,6 +357,20 @@ public class User {
 	 */
 	public void setZip(String zip) {
 		this.zip = zip;
+	}
+
+	/**
+	 * @return the userType
+	 */
+	public String getUserType() {
+		return userType;
+	}
+
+	/**
+	 * @param userType the userType to set
+	 */
+	public void setUserType(String userType) {
+		this.userType = userType;
 	}
 
 	/**
@@ -388,17 +402,17 @@ public class User {
 	}
 
 	/**
-	 * @return the lastLogin
+	 * @return the status
 	 */
-	public LocalDateTime getLastLogin() {
-		return lastLogin;
+	public String getStatus() {
+		return status;
 	}
 
 	/**
-	 * @param lastLogin the lastLogin to set
+	 * @param status the status to set
 	 */
-	public void setLastLogin(LocalDateTime lastLogin) {
-		this.lastLogin = lastLogin;
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
 	/**
@@ -416,17 +430,31 @@ public class User {
 	}
 
 	/**
-	 * @return the accounts
+	 * @return the approvedBy
 	 */
-	public Set<Account> getAccounts() {
-		return accounts;
+	public User getApprovedBy() {
+		return approvedBy;
 	}
 
 	/**
-	 * @param accounts the accounts to set
+	 * @param approvedBy the approvedBy to set
 	 */
-	public void setAccounts(Set<Account> accounts) {
-		this.accounts = accounts;
+	public void setApprovedBy(User approvedBy) {
+		this.approvedBy = approvedBy;
+	}
+
+	/**
+	 * @return the user
+	 */
+	public User getUser() {
+		return user;
+	}
+
+	/**
+	 * @param user the user to set
+	 */
+	public void setUser(User user) {
+		this.user = user;
 	}
 
 	/* (non-Javadoc)
@@ -434,12 +462,11 @@ public class User {
 	 */
 	@Override
 	public String toString() {
-		return "User [userId=" + userId + ", username=" + username + ", password=" + password + ", firstName="
-				+ firstName + ", middleName=" + middleName + ", lastName=" + lastName + ", email=" + email + ", phone="
-				+ phone + ", addressLine1=" + addressLine1 + ", addressLine2=" + addressLine2 + ", city=" + city
-				+ ", state=" + state + ", zip=" + zip + ", createdOn=" + createdOn + ", modifiedOn=" + modifiedOn
-				+ ", lastLogin=" + lastLogin + ", active=" + active + "]";
+		return "ModificationRequest [modificationRequestId=" + modificationRequestId + ", role=" + role + ", username="
+				+ username + ", password=" + password + ", firstName=" + firstName + ", middleName=" + middleName
+				+ ", lastName=" + lastName + ", email=" + email + ", phone=" + phone + ", addressLine1=" + addressLine1
+				+ ", addressLine2=" + addressLine2 + ", city=" + city + ", State=" + State + ", zip=" + zip
+				+ ", userType=" + userType + ", createdOn=" + createdOn + ", modifiedOn=" + modifiedOn + ", status="
+				+ status + ", active=" + active + ", approvedBy=" + approvedBy + ", user=" + user + "]";
 	}
-
-	
 }

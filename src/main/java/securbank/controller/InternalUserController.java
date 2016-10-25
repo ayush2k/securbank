@@ -1,0 +1,95 @@
+package securbank.controller;
+
+import java.util.UUID;
+
+import javax.servlet.http.HttpSession;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+
+import securbank.models.NewUserRequest;
+import securbank.models.User;
+import securbank.services.UserService;
+import securbank.validators.NewInternalUserFormValidator;
+
+/**
+ * @author Ayush Gupta
+ *
+ */
+@Controller
+public class InternalUserController {
+	@Autowired
+	private UserService userService;
+	
+	@Autowired 
+	NewInternalUserFormValidator userFormValidator;
+	
+	@Autowired
+    public HttpSession session;
+	
+	final static Logger logger = LoggerFactory.getLogger(InternalUserController.class);
+	
+	@GetMapping("/internal/user/verify/{id}")
+    public String verifyNewUser(Model model, @PathVariable UUID id) {
+		NewUserRequest newUserRequest = userService.getNewUserRequest(id);
+		if (newUserRequest == null) {
+			logger.info("GET request: Invalid verfication for new user");
+			
+			return "redirect/error?code=400&path=no-request";
+		}
+		
+		logger.info("GET request: Verify new internal user");
+		session.setAttribute("verification.token", newUserRequest.getNewUserRequestId());
+		User user = new User();
+		user.setEmail(newUserRequest.getEmail());
+		user.setRole(newUserRequest.getRole());
+		model.addAttribute("user", user);
+		
+		return "internal/signup";
+    }
+	
+	@PostMapping("/internal/user/signup")
+    public String internalSignupSubmit(@ModelAttribute User user, BindingResult bindingResult) {
+		UUID token = (UUID) session.getAttribute("verification.token");
+		if (token == null) {
+			logger.info("POST request: Signup internal user with invalid session token");
+			
+			return "redirect:/error?code=400&path=bad-request";
+		}
+		else {
+			// clears session
+			session.removeAttribute("validation.token");
+		}
+		logger.info("POST request: Signup internal user");
+		NewUserRequest newUserRequest = userService.getNewUserRequest(token);
+		if (newUserRequest == null) {
+			logger.info("POST request: Signup internal user with invalid id");
+			
+			return "redirect:/error?code=400&path=token-invalid";
+		}
+		if(!newUserRequest.getEmail().equals(user.getEmail()) || !newUserRequest.getRole().equals(user.getRole())) {
+			logger.info("GET request: Signup internal user with invalid credentials");
+			
+			return "redirect:/error?code=400";
+		}
+		userFormValidator.validate(user, bindingResult);
+		
+		if (bindingResult.hasErrors()) {
+			return "internal/signup";
+        }
+		
+		if (userService.createInternalUser(user) == null) {
+			return "redirect:/error?code=400&path=user-invalid";
+		};
+    	
+        return "redirect:/login";
+    }
+}

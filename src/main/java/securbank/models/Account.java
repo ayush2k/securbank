@@ -1,5 +1,8 @@
 package securbank.models;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -9,6 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
@@ -25,23 +29,20 @@ public class Account {
 	
 	/** Account number is unique. */
 	@Id
-	@NotNull
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long accountNumber;
 	
 	/** multiple account can be associated with an user	 */
 	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-	@JoinColumn(name = "user", unique = true, nullable = false)
+	@JoinColumn(name = "userId", nullable = false)
 	private User user;
 	
 	/** balance on the account */
 	@NotNull
 	private Double balance;
 	
-	/** account type. Default an account will be checking(0), (1) for savings account	*/
 	@NotNull
-	@Column(name = "accountType", columnDefinition = "int(1) DEFAULT '0' ")
-	private Integer accountType;
+	private String type;
 	
 	@NotNull
 	@Column(name = "createdOn", updatable = false)
@@ -52,22 +53,29 @@ public class Account {
 	private Boolean active;
 	
 	/**
+	 * Changes related to transactions made my Mitikaa on 10/10
+	 */
+	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "account")
+	private Set<Transaction> transactions = new HashSet<Transaction>(0);
+	
+	/**
 	 * 
 	 * @param accountNumber
 	 * @param user
 	 * @param balance
 	 * @param accountType
+	 * @param transactions
 	 * @param createdOn
 	 * @param active
 	 */
-	public Account(Long accountNumber, User user, double balance, int accountType, LocalDateTime createdOn
-			,Boolean active){
-		
+	public Account(Long accountNumber, User user, double balance, String type, Set<Transaction> transactions, 
+			LocalDateTime createdOn, Boolean active){
 		super();
 		this.accountNumber = accountNumber;
 		this.user = user;
 		this.balance = balance;
-		this.accountType = accountType;
+		this.type = type;
+		this.transactions = transactions;
 		this.createdOn = createdOn;
 		this.active = active;	
 		
@@ -127,20 +135,40 @@ public class Account {
 
 	/**
 	 * 
-	 * @return accountType
+	 * @return type
 	 */
-	public Integer getAccountType() {
-		return accountType;
+	public String getType() {
+		return type;
 	}
 	
 	/**
 	 * 
-	 * @param accountType sets accountType
+	 * @param type sets type
 	 */
-	public void setAccountType(Integer accountType) {
-		this.accountType = accountType;
+	public void setType(String type) {
+		this.type = type;
 	}
 		
+	
+	/**
+	 * added setters and getter for transactions 
+	 * -Mitikaa
+	 */
+	
+	/**
+	 * @return the transactions
+	 */
+	public Set<Transaction> getTransactions() {
+		return transactions;
+	}
+
+	/**
+	 * @param transactions the transactions to set
+	 */
+	public void setTransactions(Set<Transaction> transactions) {
+		this.transactions = transactions;
+	}
+
 	/**
 	 * 
 	 * @return createdOn time created on
@@ -148,7 +176,7 @@ public class Account {
 	public LocalDateTime getCreatedOn() {
 		return createdOn;
 	}
-	
+
 	/**
 	 * 
 	 * @param createdOn sets time created on 
@@ -172,15 +200,15 @@ public class Account {
 	public void setActive(Boolean active) {
 		this.active = active;
 	}
-	
-	/**
+
+	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
-	public String toString(){
-		return "Account [accountNumber=" + accountNumber + ", user=" + user + ", balance="
-				+ balance + ", accountType=" + accountType + ", active=" + active + ", balance=" +
-				", createdOn=" + createdOn + "]";
+	public String toString() {
+		return "Account [accountNumber=" + accountNumber + ", user=" + user + ", balance=" + balance + ", type=" + type
+				+ ", createdOn=" + createdOn + ", active=" + active + ", transactions=" + transactions + "]";
 	}
-
+	
+	
 }

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+<title>Authorize User</title>
+</head>
+<body>
+	<form action="#" th:action="@{/manager/employee/authorize}" th:object="${viewrequest}"
+		method="post">
+		<p>
+			Employee Email: <input type="text" th:field="*{employee.email}" /></p>
+		<p th:if="${#fields.hasErrors('employee.email')}" th:errors="*{employee.email}"></p><p>
+			External User Email: <input type="text" th:field="*{external.email}" /></p>
+		<p th:if="${#fields.hasErrors('external.email')}" th:errors="*{external.email}"></p>
+		<p>
+			<input type="submit" value="Submit" /> <input type="reset"
+				value="Reset" />
+		</p>
+	</form>
+</body>
+</html>
