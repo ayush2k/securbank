@@ -158,7 +158,7 @@ public class ExternalUserController {
 		// create request
     	userService.createExternalModificationRequest(user);
 	
-        return "redirect:/";
+        return "redirect:/user/details";
     }
 	
 	@GetMapping("/user/request")
