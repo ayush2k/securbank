@@ -18,7 +18,7 @@
 			<p class="navbar-brand">Cardinals Banking</p>
 		</div>
 		<ul class="nav navbar-nav navbar-right">
-		      <li><a th:href="@{/user/details}">My Dashboard</a></li>
+		      <li><a th:href="@{/merchant/details}">My Dashboard</a></li>
 		      <li><a th:href="@{/logout}">Logout</a></li>
 		    </ul>
 		</div>
@@ -27,9 +27,9 @@
 		<h3>User Dashboard</h3>
 		<ul class="nav nav-tabs nav-justified">
 			<li class="active"><a href="#">My Profile</a></li>
-			<li><a th:href="@{/user/createtransaction}">Transactions</a></li>
-			<li><a th:href="@{/user/transfers}">Pending Transfer Requests</a></li>
-			<li><a th:href="@{/user/request}">View Access Requests</a></li>
+			<li><a th:href="@{/merchant/createtransaction}">Transactions</a></li>
+			<li><a th:href="@{/merchant/transfers}">Pending Transfer Requests</a></li>
+			<li><a th:href="@{/merchant/request}">View Access Requests</a></li>
 		</ul>
 	</div>
 
@@ -75,7 +75,7 @@
 				</tr>
 				<tr>
 					<td>
-						<a th:href="@{/user/edit}" id="editbutton" name="editbutton"
+						<a th:href="@{/merchant/edit}" id="editbutton" name="editbutton"
 							class="btn btn-primary">Edit</a>
 					</td>
 				</tr>

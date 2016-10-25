@@ -43,15 +43,15 @@
 		    </ul>
 		</div>
 </nav>
-	<div class="container">
-		<h3>User Dashboard</h3>
-		<ul class="nav nav-tabs nav-justified">
-			<li><a th:href="@{/user/details}">My Profile</a></li>
-			<li><a th:href="@{/user/createtransaction}">Transactions</a></li>
-			<li><a th:href="@{/user/transfers}">Pending Transfer Requests</a></li>
-			<li class="active"><a href="#">View Access Requests</a></li>
-		</ul>
-	</div>
+<div class="container">
+  <h3>User Dashboard</h3>
+  <ul class="nav nav-tabs nav-justified">
+    <li><a th:href="@{/user/details}">My Profile</a></li>
+    <li><a th:href="@{/user/createtransaction}">Transactions</a></li>
+    <li class="active"><a href="#">Pending Transfer Requests</a></li>
+    <li><a th:href="@{/user/request}">View Access Requests</a></li>
+  </ul>
+</div>
 	<div class="container">
 		<div class="input-group">
 			<span class="input-group-addon">Filter</span> <input id="filter"
@@ -60,19 +60,23 @@
 	<div class="container">
 		<table class="table table-striped">
 			<thead>
-				<tr>
-					<th>First Name</th>
-					<th>Last Name</th>
-					<th>Role</th>
-				</tr>
+        <tr>
+  				<th>From</th>
+  				<th>Account Number</th>
+  				<th>To</th>
+  				<th>Account Number</th>
+  				<th>Amount</th>
+  			</tr>
 			</thead>
 			<tbody class="searchable">
-				<tr th:each="request : ${viewrequests}">
-					<td th:text="${request.employee.firstName}"></td>
-					<td th:text="${request.employee.lastName}"></td>
-					<td><a class="btn btn-primary"
-						th:href="@{/user/request/view/{id}(id=${request.id})}">View</a></td>
-				</tr>
+        <tr th:each="transfer : ${transfers}">
+          <td th:text="${transfer.fromAccount.user.username}"></td>
+          <td th:text="${transfer.fromAccount.accountNumber}"></td>
+          <td th:text="${transfer.toAccount.user.username}"></td>
+          <td th:text="${transfer.toAccount.accountNumber}"></td>
+          <td th:text="${transfer.amount}"></td>
+          <td><a th:href="@{/user/transfer/{id}(id=${transfer.transferId})}">View</a></td>
+				</tr> 
 			</tbody>
 		</table>
 	</div>

@@ -18,7 +18,7 @@ xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
         <p class="navbar-brand">Cardinals Banking</p>
       </div>
       <ul class="nav navbar-nav navbar-right">
-        <li><a th:href="@{/user/details}">My Dashboard</a></li>
+        <li><a th:href="@{/merchant/details}">My Dashboard</a></li>
         <li><a th:href="@{/logout}">Logout</a></li>
       </ul>
     </div>
@@ -26,21 +26,22 @@ xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
   <div class="container">
     <h3>User Dashboard</h3>
     <ul class="nav nav-tabs nav-justified">
-      <li><a th:href="@{/user/details}">My Profile</a></li>
+      <li><a th:href="@{/merchant/details}">My Profile</a></li>
       <li class="active"><a href="#">Transactions</a></li>
-      <li><a th:href="@{/user/transfers}">Pending Transfer Requests</a></li>
-      <li><a th:href="@{/user/request}">View Access Requests</a></li>
+      <li><a th:href="@{/merchant/transfers}">Pending Transfer Requests</a></li>
+      <li><a th:href="@{/merchant/request}">View Access Requests</a></li>
     </ul>
   </div>
 
   <div class="container" style="margin-top:40px;">
     <ul class="nav nav-pills" style="text-align:center">
       <li role="presentation" class="active" style="float:none;display:inline-block"><a href="#">Transfer Funds</a></li>
-      <li role="presentation" style="float:none;display:inline-block"><a th:href="@{/user/createtransaction}">Credit/Debit</a></li>
+      <li role="presentation" style="float:none;display:inline-block"><a th:href="@{/merchant/createtransaction}">Credit/Debit</a></li>
+      <li role="presentation" style="float:none;display:inline-block"><a th:href="@{/merchant/payment}">New Payment</a></li>
     </ul>
   </div>
   <div class="container" style="margin-top:15px;">
-    <form class="form-horizontal" action="#" th:action="@{/user/createtransfer}" th:object="${transfer}" method="post">
+    <form class="form-horizontal" action="#" th:action="@{/merchant/createtransfer}" th:object="${transfer}" method="post">
       <fieldset>
         <p class="text-center alert alert-warning">Please generate your OTP before you proceed with the transfer</p>
 
@@ -73,7 +74,7 @@ xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
             class="form-control input-md" required="" th:field="*{otp}"/>
           </div>
           <div>
-            <a class="btn btn-info" th:href="@{/user/transfer/otp}">Generate OTP</a>
+            <a class="btn btn-info" th:href="@{/merchant/transfer/otp}">Generate OTP</a>
           </div>
         </div>
 

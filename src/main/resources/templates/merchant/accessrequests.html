@@ -38,7 +38,7 @@
 			<p class="navbar-brand">Cardinals Banking</p>
 		</div>
 		<ul class="nav navbar-nav navbar-right">
-		      <li><a th:href="@{/user/details}">My Dashboard</a></li>
+		      <li><a th:href="@{/merchant/details}">My Dashboard</a></li>
 		      <li><a th:href="@{/logout}">Logout</a></li>
 		    </ul>
 		</div>
@@ -46,9 +46,9 @@
 	<div class="container">
 		<h3>User Dashboard</h3>
 		<ul class="nav nav-tabs nav-justified">
-			<li><a th:href="@{/user/details}">My Profile</a></li>
-			<li><a th:href="@{/user/createtransaction}">Transactions</a></li>
-			<li><a th:href="@{/user/transfers}">Pending Transfer Requests</a></li>
+			<li><a th:href="@{/merchant/details}">My Profile</a></li>
+			<li><a th:href="@{/merchant/createtransaction}">Transactions</a></li>
+			<li><a th:href="@{/merchant/transfers}">Pending Transfer Requests</a></li>
 			<li class="active"><a href="#">View Access Requests</a></li>
 		</ul>
 	</div>
@@ -71,7 +71,7 @@
 					<td th:text="${request.employee.firstName}"></td>
 					<td th:text="${request.employee.lastName}"></td>
 					<td><a class="btn btn-primary"
-						th:href="@{/user/request/view/{id}(id=${request.id})}">View</a></td>
+						th:href="@{/merchant/request/view/{id}(id=${request.id})}">View</a></td>
 				</tr>
 			</tbody>
 		</table>
