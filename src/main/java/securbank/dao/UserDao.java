@@ -16,4 +16,5 @@ public interface UserDao extends BaseDao<User, UUID> {
 	public boolean usernameExists(String username);
 	public boolean emailExists(String email);
 	public boolean phoneExists(String phone);
+	
 }
