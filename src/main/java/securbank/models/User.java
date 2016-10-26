@@ -17,10 +17,13 @@ import javax.validation.constraints.Size;
 import javax.persistence.CascadeType; 
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.validator.constraints.Email;
 import org.joda.time.LocalDateTime;
+
+import securbank.models.LoginAttempt;
 
 /**
  * @author Ayush Gupta
@@ -111,7 +114,19 @@ public class User {
 	/** One to many relation ship  */
 	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
 	private Set<Account> accounts = new HashSet<Account>(0);
+<<<<<<< HEAD
 	
+=======
+
+	/**One to one relationship */
+	@OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
+	private LoginAttempt loginAttempt;
+	
+	/** One to many relation ship  */
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
+	private Set<ModificationRequest> modificationRequest = new HashSet<ModificationRequest>(0);
+
+>>>>>>> add523b1404f9082075e9aa3eb14df6bfc5b952f
 	public User() {
 		
 	}
@@ -137,13 +152,23 @@ public class User {
 	 * @param modifiedOn
 	 * @param lastLogin
 	 * @param active
+<<<<<<< HEAD
 	 * @param accounts 
 	 * @param macAddress
+=======
+	 * @param accounts
+	 * @param modificationRequest
+>>>>>>> add523b1404f9082075e9aa3eb14df6bfc5b952f
 	 */
 	public User(UUID userId, String role, String type, String username, String password, String confirmPassword,
 			String firstName, String middleName, String lastName, String email, String phone, String addressLine1,
 			String addressLine2, String city, String state, String zip, LocalDateTime createdOn,
+<<<<<<< HEAD
 			LocalDateTime modifiedOn, LocalDateTime lastLogin, Boolean active, Set<Account> accounts, String macAddres, String macAddress) {
+=======
+			LocalDateTime modifiedOn, LocalDateTime lastLogin, Boolean active, Set<Account> accounts,LoginAttempt attempt,
+			Set<ModificationRequest> modificationRequest) {
+>>>>>>> add523b1404f9082075e9aa3eb14df6bfc5b952f
 		super();
 		this.userId = userId;
 		this.role = role;
@@ -166,7 +191,12 @@ public class User {
 		this.lastLogin = lastLogin;
 		this.active = active;
 		this.accounts = accounts;
+<<<<<<< HEAD
 		
+=======
+		this.loginAttempt = attempt;
+		this.modificationRequest = modificationRequest;
+>>>>>>> add523b1404f9082075e9aa3eb14df6bfc5b952f
 	}
 
 	/**
@@ -463,7 +493,31 @@ public class User {
 		this.accounts = accounts;
 	}
 	
+<<<<<<< HEAD
 	
+=======
+	public void setLoginAttempt(LoginAttempt attempt){
+		this.loginAttempt=attempt;
+	}
+	
+	public LoginAttempt getLoginAttempt(){
+		return loginAttempt;
+	}
+
+	/**
+	 * @return the modificationRequest
+	 */
+	public Set<ModificationRequest> getModificationRequest() {
+		return modificationRequest;
+	}
+
+	/**
+	 * @param modificationRequest the modificationRequest to set
+	 */
+	public void setModificationRequest(Set<ModificationRequest> modificationRequest) {
+		this.modificationRequest = modificationRequest;
+	}
+>>>>>>> add523b1404f9082075e9aa3eb14df6bfc5b952f
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
@@ -475,6 +529,7 @@ public class User {
 				+ middleName + ", lastName=" + lastName + ", email=" + email + ", phone=" + phone + ", addressLine1="
 				+ addressLine1 + ", addressLine2=" + addressLine2 + ", city=" + city + ", state=" + state + ", zip="
 				+ zip + ", createdOn=" + createdOn + ", modifiedOn=" + modifiedOn + ", lastLogin=" + lastLogin
-				+ ", active=" + active + ", accounts=" + accounts + "]";
+				+ ", active=" + active + ", accounts=" + accounts + ", loginAttempt=" + loginAttempt 
+				+ ", modificationRequest=" + modificationRequest+ "]";
 	}
 }

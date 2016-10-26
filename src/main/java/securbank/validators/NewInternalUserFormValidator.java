@@ -95,5 +95,6 @@ public class NewInternalUserFormValidator implements Validator{
 		if (!errors.hasFieldErrors("zip") && !ContraintUtils.validateZip(user.getZip())) {
 			errors.rejectValue("zip", "user.zip.invalid", "Invalid Zip");
 		}
+
 	} 
 }

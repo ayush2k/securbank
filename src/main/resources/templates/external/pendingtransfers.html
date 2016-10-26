@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+ <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+     <head>
+         <title>Pending Transfer Requests</title>
+     </head>
+ 	<body>
+ 		<table>
+ 			<tr>
+ 				<td>From</td>
+ 				<td>Account Number</td>
+ 				<td>To</td>
+ 				<td>Account Number</td>
+ 				<td>Amount</td>
+ 				<td>View</td>
+ 			</tr>
+ 			<tr th:each="transfer : ${transfers}">
+ 				<td th:text="${transfer.fromAccount.user.username}"></td>
+ 				<td th:text="${transfer.fromAccount.accountNumber}"></td>
+ 				<td th:text="${transfer.toAccount.user.username}"></td>
+ 				<td th:text="${transfer.toAccount.accountNumber}"></td>
+ 				<td th:text="${transfer.amount}"></td>
+ 				<td><a th:href="@{/user/transfer/{id}(id=${transfer.transferId})}">View</a></td>
+ 			</tr>
+ 		</table>
+ 	</body>
+</html>
