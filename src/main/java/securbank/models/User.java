@@ -47,7 +47,6 @@ public class User {
 	
 	@NotNull
 	@Size(min = 3, max = 15)
-	@Column(name = "username", unique = true)
 	private String username;
 	
 	@NotNull
@@ -70,12 +69,10 @@ public class User {
 	
 	@NotNull
 	@Email
-	@Column(name = "email", unique = true)
 	private String email;
 
 	@NotNull
 	@Size(min = 10, max = 10)
-	@Column(name = "phone", unique = true)
 	private String phone;
 
 	@NotNull

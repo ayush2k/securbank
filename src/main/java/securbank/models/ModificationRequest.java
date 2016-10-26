@@ -148,7 +148,7 @@ public class ModificationRequest {
 		this.addressLine1 = addressLine1;
 		this.addressLine2 = addressLine2;
 		this.city = city;
-		State = state;
+		this.State = state;
 		this.zip = zip;
 		this.userType = userType;
 		this.createdOn = createdOn;
