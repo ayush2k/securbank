@@ -35,7 +35,6 @@ import securbank.validators.NewTransactionFormValidator;
 import securbank.validators.NewTransferFormValidator;
 import securbank.validators.NewUserFormValidator;
 
-
 /**
  * @author Ayush Gupta
  *
@@ -278,7 +277,7 @@ public class ExternalUserController {
 		if (cc == null) {
 			return "redirect:/user/credit-card/create";
 		}
-		cc.setBalance(cc.getMaxLimit() - cc.getAccount().getBalance());
+		cc = creditCardService.getDueAmount(cc);
 		model.addAttribute("creditcard", cc);
 		logger.info("GET request: make a payment for credit card");
 		
@@ -299,6 +298,7 @@ public class ExternalUserController {
 		}
 		// TODO: adds validation of transaction
 		logger.info("POST request: make a payment for credit card");
+		
     	transaction = creditCardService.creditCardMakePayment(cc);
     	if (transaction == null) {
     		return "redirect:/error?code=400";
@@ -401,4 +401,9 @@ public class ExternalUserController {
 		
         return "redirect:/user/request";
     }
+	
+	@GetMapping("hello")
+	public void something(Model model) {
+		creditCardService.interestGeneration();
+	}
 }

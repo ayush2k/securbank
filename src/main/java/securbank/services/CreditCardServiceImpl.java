@@ -13,6 +13,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import securbank.dao.AccountDao;
 import securbank.dao.CreditCardDao;
 import securbank.dao.CreditCardStatementDao;
 import securbank.models.Account;
@@ -32,6 +33,9 @@ public class CreditCardServiceImpl implements CreditCardService {
 
 	@Autowired
 	private CreditCardDao creditCardDao;
+	
+	@Autowired
+	private AccountDao accountDao;
 	
 	@Autowired
 	private CreditCardStatementDao creditCardStatementDao; 
@@ -74,19 +78,39 @@ public class CreditCardServiceImpl implements CreditCardService {
 	}
 	
 	public Transaction creditCardMakePayment(CreditCard cc) {
-		// TODO calls create transaction
-		Double balance = cc.getMaxLimit() - cc.getAccount().getBalance();
-		Transaction transaction = transactionService.createCardPaymentTransaction(balance, cc.getAccount().getUser());
-		if (transaction == null) {
-			return null;
-		}
- 
 		List<CreditCardStatement> statements = creditCardStatementDao.findByCreditCardAndStatus(cc, "pending");
+		if (statements.size() == 0) {
+			return new Transaction();
+		}
 		for(CreditCardStatement statement : statements) {
 			statement.setStatus("closed");
 			creditCardStatementDao.update(statement);
 		}
+		
+		Double balance = cc.getMaxLimit() - cc.getAccount().getBalance();
+		
+		Transaction transaction = transactionService.createCardPaymentTransaction(balance, cc.getAccount().getUser());
+		if (transaction == null) {
+			return null;
+		}
+		Account account = cc.getAccount();
+		account.setBalance(cc.getMaxLimit());
+		accountDao.update(account);
+		
+
 		return transaction;
+	}
+	
+	public CreditCard getDueAmount(CreditCard cc) {
+		List<CreditCardStatement> statements = creditCardStatementDao.findByCreditCardAndStatus(cc, "pending");
+		if (statements.size() == 0) {
+			cc.setBalance(0d);
+		}
+		else {
+			cc.setBalance(cc.getMaxLimit() - cc.getAccount().getBalance());
+		}
+		
+		return cc;
 	}
 	
 	public CreditCardStatement getStatementById(CreditCard cc, UUID statementId) {
@@ -106,7 +130,7 @@ public class CreditCardServiceImpl implements CreditCardService {
 	/*
 	 * Calls this function at 1 AM daily
 	 */
-	@Scheduled(cron = "0 00 1 * * *")
+	@Scheduled(fixedRate = 5000)
 	public void interestGeneration() {
 		List<CreditCardStatement> statements = creditCardStatementDao.findByPendingDateAndStatus(LocalDate.now(), "pending");
 		Map<CreditCard, Double> creditCards = new HashMap<CreditCard, Double>();
@@ -132,7 +156,7 @@ public class CreditCardServiceImpl implements CreditCardService {
 			apr = cc.getApr();
 			Transaction transaction = new Transaction();
 			transaction.setAccount(account); 
-			transaction.setAmount(pendingBalance * (apr / (30 * 100)));
+			transaction.setAmount(Math.round(pendingBalance * (apr / (30 * 100))*100)/100);
 			transactionService.createInternalTransationByType(transaction, "APR");
 		}
 	}
@@ -176,9 +200,10 @@ public class CreditCardServiceImpl implements CreditCardService {
 		for (CreditCard cc : ccs) {
 			for (CreditCardStatement stat : cc.getStatements()) {
 				if (stat.getStatus().equals("current")) {
-					stat.setClosingBalance(transactionService.getSumByAccountAndDateRange(cc.getAccount(), 
+					Double balance = transactionService.getSumByAccountAndDateRange(cc.getAccount(), 
 							stat.getStartDate().toLocalDateTime(LocalTime.fromMillisOfDay(0)), 
-							stat.getEndDate().toLocalDateTime(LocalTime.fromMillisOfDay(0))));
+							stat.getEndDate().toLocalDateTime(LocalTime.fromMillisOfDay(0)));
+					stat.setClosingBalance(balance);
 					stat.setStatus("pending");
 					creditCardStatementDao.update(stat);
 				}

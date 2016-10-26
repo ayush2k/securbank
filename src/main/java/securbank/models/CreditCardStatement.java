@@ -44,10 +44,14 @@ public class CreditCardStatement {
 	
 	@NotNull
 	private LocalDate endDate;
-	
+
+	@NotNull
+	private LocalDate pendingDate;
+
 	private Double closingBalance;
 	
 	private String status;
+	
 	@NotNull
 	@Column(name = "created_on", nullable = false, updatable = false)
 	private LocalDateTime createdOn;
@@ -64,24 +68,27 @@ public class CreditCardStatement {
 	 * @param cc
 	 * @param startDate
 	 * @param endDate
+	 * @param pendingDate
 	 * @param closingBalance
 	 * @param status
 	 * @param createdOn
 	 * @param transactions
 	 */
 	public CreditCardStatement(UUID statementId, CreditCard cc, LocalDate startDate, LocalDate endDate,
-			Double closingBalance, String status, LocalDateTime createdOn, List<Transaction> transactions) {
+			LocalDate pendingDate, Double closingBalance, String status, LocalDateTime createdOn,
+			List<Transaction> transactions) {
 		super();
 		this.statementId = statementId;
 		this.cc = cc;
 		this.startDate = startDate;
 		this.endDate = endDate;
+		this.pendingDate = pendingDate;
 		this.closingBalance = closingBalance;
 		this.status = status;
 		this.createdOn = createdOn;
 		this.transactions = transactions;
 	}
-	
+
 	/**
 	 * @return the statementId
 	 */
@@ -136,6 +143,20 @@ public class CreditCardStatement {
 	 */
 	public void setEndDate(LocalDate endDate) {
 		this.endDate = endDate;
+	}
+
+	/**
+	 * @return the pendingDate
+	 */
+	public LocalDate getPendingDate() {
+		return pendingDate;
+	}
+
+	/**
+	 * @param pendingDate the pendingDate to set
+	 */
+	public void setPendingDate(LocalDate pendingDate) {
+		this.pendingDate = pendingDate;
 	}
 
 	/**
@@ -200,8 +221,8 @@ public class CreditCardStatement {
 	@Override
 	public String toString() {
 		return "CreditCardStatement [statementId=" + statementId + ", cc=" + cc + ", startDate=" + startDate
-				+ ", endDate=" + endDate + ", closingBalance=" + closingBalance + ", status=" + status + ", createdOn="
-				+ createdOn + ", transactions=" + transactions + "]";
+				+ ", endDate=" + endDate + ", pendingDate=" + pendingDate + ", closingBalance=" + closingBalance
+				+ ", status=" + status + ", createdOn=" + createdOn + ", transactions=" + transactions + "]";
 	}
 
 	/**
@@ -213,6 +234,7 @@ public class CreditCardStatement {
 		this.createdOn = LocalDateTime.now();
 		this.startDate = LocalDate.now();
 		this.endDate = LocalDate.now().plusMonths(1);
+		this.pendingDate = LocalDate.now().plusMonths(0);
 		this.status = "current";
 	}
 }

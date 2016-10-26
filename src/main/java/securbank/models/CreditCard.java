@@ -2,7 +2,7 @@ package securbank.models;
 
 import org.joda.time.LocalDateTime;
 
-import java.time.LocalDate;
+import org.joda.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;

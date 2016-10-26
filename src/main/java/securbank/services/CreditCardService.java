@@ -60,6 +60,8 @@ public interface CreditCardService {
 	 */
 	public CreditCardStatement getStatementById(CreditCard cc, UUID statementId);
 	
+	public CreditCard getDueAmount(CreditCard cc);
+	
 	/**
 	 * Runs regular job to apply interest
 	 *

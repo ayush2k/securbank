@@ -61,7 +61,7 @@ public class CreditCardDaoImpl extends BaseDaoImpl<CreditCard, UUID> implements 
 	 */
 	@Override
 	public List<CreditCard> findByGenerationDate(LocalDate date) {
-		return this.entityManager.createQuery("SELECT cc from CreditCard creditcard " + 
+		return this.entityManager.createQuery("SELECT cc from CreditCard cc " + 
 				"WHERE cc.statementGeneration = :date", CreditCard.class)
 				.setParameter("date", date)
 				.getResultList();

@@ -228,15 +228,14 @@ public class TransactionDaoImpl extends BaseDaoImpl<Transaction, UUID> implement
 
 	@Override
 	public Double findSumByAccountAndDateRange(Account account, LocalDateTime start, LocalDateTime end) {
-		this.entityManager.createQuery("SELECT SUM(transfer.amount) from Transfer transfer"
+		return this.entityManager.createQuery("SELECT SUM(transaction.amount) from Transaction transaction"
 				+ " WHERE transaction.account = :account"
-				+ " AND transaction.created_on >= :start"
-				+ " AND transaction.created_on < :end"
-				+ " AND transaction.active < true", Double.class)
+				+ " AND transaction.createdOn >= :start"
+				+ " AND transaction.createdOn < :end"
+				+ " AND transaction.active = true", Double.class)
 				.setParameter("account", account)
 				.setParameter("start", start)
 				.setParameter("end", end)
 				.getSingleResult();
-		return null;
 	}
 }

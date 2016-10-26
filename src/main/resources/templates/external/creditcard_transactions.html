@@ -10,11 +10,13 @@
 		<tr>
 			<td>Date</td>
 			<td>Amount</td>
+			<td>Type</td>
 			<td>Status</td>
 		</tr>
 		<tr th:each="transaction : ${transactions}">
 			<td th:text="${transaction.createdOn}"></td>
 			<td th:text="${transaction.amount}"></td>
+			<td th:text="${transaction.type}"></td>
 			<td th:text="${transaction.approvalStatus}"></td>
 		</tr>
 	</table>

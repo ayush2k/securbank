@@ -1,6 +1,7 @@
 package securbank.services;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.transaction.Transactional;
@@ -154,19 +155,30 @@ public class TransactionServiceImpl implements TransactionService {
 	public Transaction createInternalTransationByType(Transaction transaction, String type) {
 		logger.info("Initiating new fees");
  		
+ 		logger.info("After TransactionDao save");
+
+ 		Account account = transaction.getAccount();
+ 		User current = account.getUser();
+		
+ 		Double oldBalance = account.getBalance();
+		Double newBalance = 0.0;
+		newBalance = oldBalance - transaction.getAmount();
+		account.setBalance(newBalance);
+		account = accountDao.update(account);
  		transaction.setApprovalStatus("Approved");
  		transaction.setType(type);
  		transaction.setCreatedOn(LocalDateTime.now());
  		transaction.setActive(true);
+		transaction.setOldBalance(oldBalance);
+		transaction = transactionDao.update(transaction);
+		transaction.setNewBalance(newBalance);
  		transaction = transactionDao.save(transaction);
- 		logger.info("After TransactionDao save");
- 
+		
  		//send email to user
- 		User user = transaction.getAccount().getUser();
  		message = new SimpleMailMessage();
  		message.setText(env.getProperty("external.user.transaction.interest.body"));
  		message.setSubject(env.getProperty("external.user.transaction.subject"));
- 		message.setTo(user.getEmail());
+ 		message.setTo(current.getEmail());
  		emailService.sendEmail(message);
  		
  		return transaction;

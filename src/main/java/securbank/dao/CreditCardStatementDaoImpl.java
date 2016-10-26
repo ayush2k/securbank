@@ -22,25 +22,27 @@ public class CreditCardStatementDaoImpl extends BaseDaoImpl<CreditCardStatement,
 	}
 	
 	public List<CreditCardStatement> findByGenerationDateAndStatus(LocalDate date, String status) {
-		return this.entityManager.createQuery("SELECT statement from CreditCardStatement creditcard "+
-					"WHERE statement.cc.Statementgeneration = :date " +
-					"AND statement.status= :status", CreditCardStatement.class)
+		return this.entityManager.createQuery("SELECT statement from CreditCardStatement statement "+
+					"WHERE statement.cc.statementGeneration = :date " +
+					"AND statement.status= :status " +
+					"AND statement.pendingDate <= :now", CreditCardStatement.class)
 				.setParameter("date", date)
 				.setParameter("status", status)
+				.setParameter("now", LocalDate.now())
 				.getResultList();
 	}
 	
 	public List<CreditCardStatement> findByPendingDateAndStatus(LocalDate date, String status) {
-		return this.entityManager.createQuery("SELECT statement from CreditCardStatement creditcard " +
-					"WHERE statement.status= :status " +
-					"AND statemnt.pendingDate < :date", CreditCardStatement.class)
+		return this.entityManager.createQuery("SELECT statement from CreditCardStatement statement " +
+					"WHERE statement.status = :status " +
+					"AND statement.pendingDate <= :date", CreditCardStatement.class)
 				.setParameter("status", status)
 				.setParameter("date", date)
 				.getResultList();
 	}
 	
 	public List<CreditCardStatement> findByCreditCardAndStatus(CreditCard cc, String status){
-		return this.entityManager.createQuery("SELECT statement from CreditCardStatement creditcard " +
+		return this.entityManager.createQuery("SELECT statement from CreditCardStatement statement " +
 				"WHERE statement.status= :status " +
 				"AND statement.cc = :cc", CreditCardStatement.class)
 			.setParameter("status", status)
