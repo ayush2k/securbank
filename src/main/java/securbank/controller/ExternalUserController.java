@@ -401,9 +401,4 @@ public class ExternalUserController {
 		
         return "redirect:/user/request";
     }
-	
-	@GetMapping("hello")
-	public void something(Model model) {
-		creditCardService.interestGeneration();
-	}
 }
