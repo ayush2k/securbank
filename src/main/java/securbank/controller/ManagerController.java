@@ -3,8 +3,6 @@
  */
 package securbank.controller;
 
-import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
