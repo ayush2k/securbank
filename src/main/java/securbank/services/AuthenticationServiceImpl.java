@@ -105,6 +105,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		user.setLastLogin(LocalDateTime.now());
 		//Login Successful, LoginAttempt counter reset to 0
 		LoginAttempt attempt = user.getLoginAttempt();
+		if(attempt==null)
+			attempt=new LoginAttempt(user, 0, LocalDateTime.now());
 		attempt.setCounter(0);
 		attempt.setLastUpdated(LocalDateTime.now());
 		user.setLoginAttempt(attempt);
@@ -131,8 +133,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             targetUrl = "/manager/details";
         } else if(role.contains("EMPLOYEE")) {
             targetUrl = "/employee/details";
-        } else if(role.contains("INDIVIDUAL")|role.contains("MERCHANT")) {
+        } else if(role.contains("INDIVIDUAL")) {
             targetUrl = "/user/details";
+        } else if(role.contains("MERCHANT")) {
+            targetUrl = "/merchant/details";
         }
         return targetUrl;
 	}

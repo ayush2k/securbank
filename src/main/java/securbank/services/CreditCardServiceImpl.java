@@ -130,7 +130,8 @@ public class CreditCardServiceImpl implements CreditCardService {
 	/*
 	 * Calls this function at 1 AM daily
 	 */
-	@Scheduled(fixedRate = 5000)
+	//@Scheduled(cron = "0 00 1 * * *")
+	@Scheduled(fixedDelay = 5000)
 	public void interestGeneration() {
 		List<CreditCardStatement> statements = creditCardStatementDao.findByPendingDateAndStatus(LocalDate.now(), "pending");
 		Map<CreditCard, Double> creditCards = new HashMap<CreditCard, Double>();
@@ -147,16 +148,12 @@ public class CreditCardServiceImpl implements CreditCardService {
 			}
 		}
 		for (CreditCard cc : creditCards.keySet()) {
-			CreditCardStatement statement = new CreditCardStatement();
-			statement.setCc(cc);
-			creditCardStatementDao.save(statement);
-			
 			account = cc.getAccount();
 			pendingBalance = creditCards.get(cc);
 			apr = cc.getApr();
 			Transaction transaction = new Transaction();
 			transaction.setAccount(account); 
-			transaction.setAmount(Math.round(pendingBalance * (apr / (30 * 100))*100)/100);
+			transaction.setAmount(Math.round(pendingBalance * (apr / (30 * 100))*100)/100d);
 			transactionService.createInternalTransationByType(transaction, "APR");
 		}
 	}

@@ -43,6 +43,9 @@ public class TransactionServiceImpl implements TransactionService {
 	@Autowired
 	private Environment env;
 	
+	@Autowired
+	OtpService otpService;
+	
 	private SimpleMailMessage message;
 	
 	final static Logger logger = LoggerFactory.getLogger(TransactionServiceImpl.class);
@@ -208,11 +211,13 @@ public class TransactionServiceImpl implements TransactionService {
 				transaction.setAccount(acc);
 			}
 		}
+		
+		
 		transaction.setApprovalStatus("Pending");
 		if (transaction.getAmount() > Double.parseDouble(env.getProperty("critical.amount"))) {
 			transaction.setCriticalStatus(true);
 		}
-
+		
 		transaction.setType("CREDIT");
 		transaction.setCreatedOn(LocalDateTime.now());
 		transaction.setActive(true);
@@ -331,6 +336,7 @@ public class TransactionServiceImpl implements TransactionService {
 		transactionTo.setActive(true);
 		transactionTo.setApprovalStatus("Pending");
 		transactionTo.setType("CREDIT");
+		transactionTo.setTransfer(transfer);
 		transactionTo = initiateCredit(transactionTo);
 		approveTransactionFromTransfer(transactionTo);
 		
@@ -340,6 +346,7 @@ public class TransactionServiceImpl implements TransactionService {
 		transactionFrom.setActive(true);
 		transactionFrom.setApprovalStatus("Pending");
 		transactionFrom.setType("DEBIT");
+		transactionFrom.setTransfer(transfer);
 		transactionFrom = initiateDebit(transactionFrom);
 		approveTransactionFromTransfer(transactionFrom);
 		

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import securbank.models.Account;
 import securbank.models.Transfer;
+import securbank.models.User;
 
 /**
  * @author Mitikaa Sama
@@ -81,6 +82,15 @@ public class TransferDaoImpl extends BaseDaoImpl<Transfer, UUID> implements Tran
 				+ " where transfer.fromAccount = :account AND transfer.status = :status", Transfer.class)
 				.setParameter("account", fromAccount)
 				.setParameter("status", "Pending")
+				.getResultList();
+	}
+	
+	@Override
+	public List<Transfer> findByUserAndApprovalStatus(User user, String status) {
+		return this.entityManager.createQuery("SELECT transfer from Transfer transfer"
+				+ " where transfer.status = :status AND (transfer.toAccount.user = :user OR transfer.fromAccount.user = :user)", Transfer.class)
+				.setParameter("status", status)
+				.setParameter("user", user)
 				.getResultList();
 	}
 }
