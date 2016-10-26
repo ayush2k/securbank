@@ -234,7 +234,7 @@ public class CreditCardStatement {
 		this.createdOn = LocalDateTime.now();
 		this.startDate = LocalDate.now();
 		this.endDate = LocalDate.now().plusMonths(1);
-		this.pendingDate = LocalDate.now().plusMonths(0);
+		this.pendingDate = LocalDate.now().plusMonths(2);
 		this.status = "current";
 	}
 }
