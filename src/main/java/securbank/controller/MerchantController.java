@@ -259,6 +259,7 @@ public class MerchantController {
 			return "redirect:/error?code=404&path=transfers-not-found";
 		}
 		model.addAttribute("transfers", transfers);
+		model.addAttribute("currentUser", userService.getCurrentUser());
 		
         return "merchant/pendingtransfers";
     }
