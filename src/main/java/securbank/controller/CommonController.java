@@ -1,17 +1,23 @@
 package securbank.controller;
 
+import static org.mockito.Matchers.intThat;
+
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.mockito.internal.matchers.Find;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.session.FindByIndexNameSessionRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -22,6 +28,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+<<<<<<< HEAD
+import securbank.models.DeviceTrust;
+import securbank.models.User;
+import securbank.services.DeviceTrustService;
+=======
 import securbank.dao.UserDao;
 import securbank.models.ChangePasswordRequest;
 import securbank.models.CreatePasswordRequest;
@@ -31,6 +42,7 @@ import securbank.models.Verification;
 import securbank.services.AuthenticationService;
 import securbank.services.ForgotPasswordService;
 import securbank.services.SecurityContextService;
+>>>>>>> add523b1404f9082075e9aa3eb14df6bfc5b952f
 import securbank.services.UserService;
 import securbank.services.VerificationService;
 import securbank.validators.ChangePasswordFormValidator;
@@ -52,8 +64,17 @@ public class CommonController {
 
 	@Autowired
 	UserService userService;
+<<<<<<< HEAD
+	
+	@Autowired
+	DeviceTrustService deviceTrustService;
+	
+	
+	@Autowired 
+=======
 
 	@Autowired
+>>>>>>> add523b1404f9082075e9aa3eb14df6bfc5b952f
 	NewUserFormValidator userFormValidator;
 	
 	@Autowired
@@ -116,6 +137,39 @@ public class CommonController {
 			logger.info("POST request: signup form with validation errors");
 
 			return "signup";
+<<<<<<< HEAD
+        }
+		// If the control came here, there are no errors in the form
+		// submitted
+		
+		
+		logger.info("POST request: signup");
+		logger.info("Username: "+user.getUsername());
+		
+    	userService.createExternalUser(user);
+    	InetAddress ip;
+		try {
+		ip = InetAddress.getLocalHost();
+		System.out.println("Current IP address : " + ip.getHostAddress());
+
+		NetworkInterface network = NetworkInterface.getByInetAddress(ip);
+
+		byte[] mac = network.getHardwareAddress();
+		String macString = new String(mac);
+		System.out.println(macString);
+    	DeviceTrust deviceTrust = new DeviceTrust();
+    	deviceTrust.setMacAddress(macString);
+    	deviceTrust.setUser(user);
+		}catch(Exception e){
+			System.out.println(e);
+		}
+    	
+        return "redirect:/";
+    }
+	
+	@GetMapping("/user/verify/{id}")
+    public String verifyNewUser(Model model, @PathVariable UUID id) {
+=======
 		}
 
 		logger.info("POST request: signup");
@@ -128,6 +182,7 @@ public class CommonController {
 
 	@GetMapping("/verify/{id}")
 	public String verifyNewUser(Model model, @PathVariable UUID id) {
+>>>>>>> add523b1404f9082075e9aa3eb14df6bfc5b952f
 		if (userService.verifyNewUser(id) == false) {
 			logger.info("GET request: verification failed of new external user");
 			return "redirect:/error?code=400";

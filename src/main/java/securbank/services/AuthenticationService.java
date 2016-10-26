@@ -8,6 +8,7 @@ import securbank.models.User;
  */
 public interface AuthenticationService {
 	public User verifyUser(String username, String password);
+	public User verifyMacAddress(String username, String macAddress);
 	public User updateLoginTime(User user);
 	public String getRedirectUrlFromRole(String role);
 }

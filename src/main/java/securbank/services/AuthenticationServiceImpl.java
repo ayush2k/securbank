@@ -1,10 +1,17 @@
 package securbank.services;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+<<<<<<< HEAD
+=======
 import org.springframework.core.env.Environment;
+>>>>>>> add523b1404f9082075e9aa3eb14df6bfc5b952f
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,7 +19,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import securbank.dao.UserDao;
+<<<<<<< HEAD
+import securbank.models.DeviceTrust;
+=======
 import securbank.models.LoginAttempt;
+>>>>>>> add523b1404f9082075e9aa3eb14df6bfc5b952f
 import securbank.models.User;
 import securbank.models.Verification;
 
@@ -34,10 +45,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	@Autowired
 	private EmailService emailService;
 	
+<<<<<<< HEAD
+	@Autowired
+	DeviceTrustService deviceTrustService;
+	
+=======
 	private SimpleMailMessage message;
 	
 	@Autowired
 	private Environment env;
+>>>>>>> add523b1404f9082075e9aa3eb14df6bfc5b952f
 	
 	@Autowired
 	VerificationService verificationService;
@@ -122,6 +139,27 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 		return user;
 	}
 
+<<<<<<< HEAD
+	@Override
+	public User verifyMacAddress(String username, String macAddress) {
+		User user = userDao.findByUsernameOrEmail(username);
+		DeviceTrust deviceTrust = new DeviceTrust();
+		List<DeviceTrust> listObtained = deviceTrustService.findMacAddresses(username);
+		if(listObtained.contains(macAddress)){
+			return user;
+		}
+		else{
+			SimpleMailMessage message = new SimpleMailMessage();
+			message.setText("Your account has been logged in using new device");
+			message.setSubject("New sign-in");
+			message.setTo(user.getEmail());
+			emailService.sendEmail(message);
+			deviceTrust.setUser(user);
+			deviceTrust.setMacAddress(macAddress);
+		}
+		return user;
+	}
+=======
 
 	@Override
 	public String getRedirectUrlFromRole(String role) {
@@ -141,5 +179,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return targetUrl;
 	}
 
+>>>>>>> add523b1404f9082075e9aa3eb14df6bfc5b952f
 	
 }
