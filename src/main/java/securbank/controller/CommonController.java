@@ -124,19 +124,23 @@ public class CommonController {
 
 		userService.createExternalUser(user);
 
-		return "redirect:/";
+		return "redirect:/login";
 	}
 
 	@GetMapping("/verify/{id}")
 	public String verifyNewUser(Model model, @PathVariable UUID id) throws Exceptions {
-		if (userService.verifyNewUser(id) == false) {
+		User user = verificationService.getUserByIdAndType(id, "newuser");
+		if (user == null) {
+			throw new Exceptions("404", "Invalid or Expired Verification Link");
+		}
+		if (userService.verifyNewUser(user) == false) {
 			logger.info("GET request: verification failed of new external user");
 			//return "redirect:/error?code=400";
 			throw new Exceptions("400"," ");
 		}
 		logger.info("GET request: verification of new external user");
 
-		return "redirect:/";
+		return "redirect:/login";
     }
 	
 
@@ -294,7 +298,7 @@ public class CommonController {
 		UUID token = (UUID) session.getAttribute("reactivate.verification");
 		if (token == null) {
 			logger.info("POST request: Email for forgot password with invalid session token");
-			//return "redirect:/error?code=400&path=bad-request";
+
 			throw new Exceptions("400","Bad Request !");
 		}
 
@@ -302,11 +306,9 @@ public class CommonController {
 		User user = verificationService.getUserByIdAndType(token, "lock");
 		session.removeAttribute("reactivation.verification");
 		
-		// User user = userService.getUserByIdAndActive(token);
 		if(user==null){
 			logger.info("POST request: Forgot password with invalid user id");
 			
-			//return "redirect:/error?code=400&path=bad-request";
 			throw new Exceptions("400","Bad Request !");
 		}
 		verificationService.removeVerification(token);
@@ -321,7 +323,7 @@ public class CommonController {
 				logger.info("POST request: createpassword form with validation errors");
 				return "reactivate";
 			}
-		userService.verifyNewUser(user.getUserId());
+		userService.verifyNewUser(user);
 		if(forgotPasswordService.createUserPassword(user, request) != null){
 			return "redirect:/login";
 		}

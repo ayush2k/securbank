@@ -24,6 +24,7 @@ import securbank.models.ChangePasswordRequest;
 import securbank.models.ModificationRequest;
 import securbank.models.NewUserRequest;
 import securbank.models.User;
+import securbank.models.Verification;
 import securbank.models.LoginAttempt;
 
 /**
@@ -54,6 +55,9 @@ public class UserServiceImpl implements UserService {
 	
 	private SimpleMailMessage message;
 	
+	@Autowired 
+	private VerificationService verificationService;
+	
 	@Autowired
 	private Environment env;
 	
@@ -77,10 +81,10 @@ public class UserServiceImpl implements UserService {
 		LoginAttempt attempt = new LoginAttempt(user, 0, LocalDateTime.now());		
 		user.setLoginAttempt(attempt);
 		user = userDao.save(user);
-		
+		Verification verification = verificationService.createVerificationCodeByType(user, "newuser");
 		//setup up email message
 		message = new SimpleMailMessage();
-		message.setText(env.getProperty("external.user.verification.body").replace(":id:",user.getUserId().toString()));
+		message.setText(env.getProperty("external.user.verification.body").replace(":id:",verification.getVerificationId().toString()));
 		message.setSubject(env.getProperty("external.user.verification.subject"));
 		message.setTo(user.getEmail());
 		emailService.sendEmail(message);
@@ -134,8 +138,7 @@ public class UserServiceImpl implements UserService {
      * @return user
      */
 	@Override
-	public boolean verifyNewUser(UUID userId) {
-		User user = userDao.findById(userId);
+	public boolean verifyNewUser(User user) {
 		if (user == null || userDao.emailExists(user.getEmail()) || userDao.phoneExists(user.getPhone()) || userDao.usernameExists(user.getUsername())) {
 			logger.info("Verification for existing email, phone or username");
 			return false;
