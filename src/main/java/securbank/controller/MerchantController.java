@@ -29,10 +29,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import securbank.exceptions.Exceptions;
+import securbank.models.CreditCard;
+import securbank.models.CreditCardStatement;
 import securbank.models.Transaction;
 import securbank.models.Transfer;
 import securbank.models.User;
 import securbank.models.ViewAuthorization;
+import securbank.services.CreditCardService;
 import securbank.services.OtpService;
 import securbank.services.PDFService;
 import securbank.services.TransactionService;
@@ -73,6 +76,9 @@ public class MerchantController {
 	@Autowired
 	public HttpSession session;
 
+	@Autowired 
+	CreditCardService creditCardService;
+	
 	@Autowired 
 	ViewAuthorizationService viewAuthorizationService;
 
@@ -437,5 +443,216 @@ public class MerchantController {
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
+	}
+	
+	@GetMapping("/merchant/credit-card/create")
+    public String createCreditCard(Model model) throws Exceptions {
+		User user = userService.getCurrentUser();
+		if (user == null) {
+			throw new Exceptions("404", "User Not Found");
+		}
+		if (creditCardService.getCreditCardDetails(user) != null) {
+			return "redirect:/merchant/credit-card/details";
+		}
+		
+		logger.info("GET request: create credit card");
+		
+        return "merchant/creditcard_create";
+    }
+	
+	@PostMapping("/merchant/credit-card/create")
+    public String createCreditCard(@ModelAttribute CreditCard cc, BindingResult bindingResult)throws Exceptions {
+		User user = userService.getCurrentUser();
+		if (user == null) {
+			throw new Exceptions("404", "User Not Found");
+		}
+		if (creditCardService.getCreditCardDetails(user) != null) {
+			return "redirect:/merchant/credit-card/details";
+		}
+		
+		logger.info("POST request: create credit card");
+		
+    	creditCardService.createCreditCard(user);
+    	
+        return "redirect:/merchant/credit-card/details";
+    }
+	
+	@GetMapping("/merchant/credit-card/details")
+    public String detailCreditCard(Model model) throws Exceptions {
+		User user = userService.getCurrentUser();
+		if (user == null) {
+			throw new Exceptions("404", "User Not Found");
+		}
+		CreditCard creditCard = creditCardService.getCreditCardDetails(user); 
+		if (creditCard == null) {
+			return "redirect:/merchant/credit-card/create";
+		}
+		model.addAttribute("creditCard", creditCard);
+		logger.info("GET request: credit card detail");
+		
+        return "merchant/creditcard_detail";
+    }
+	
+	@GetMapping("/merchant/credit-card/transaction/create")
+    public String createCreditCardTransacttion(Model model) throws Exceptions {
+		User user = userService.getCurrentUser();
+		if (user == null) {
+			throw new Exceptions("404", "User Not Found");
+		}
+		if (creditCardService.getCreditCardDetails(user) == null) {
+			return "redirect:/merchant/credit-card/create";
+		}
+		model.addAttribute("transaction", new Transaction());
+		logger.info("GET request: create credit card transaction");
+		
+        return "merchant/creditcard_transaction_create";
+    }
+	
+	@PostMapping("/merchant/credit-card/transaction/create")
+    public String createCreditCardTransaction(@ModelAttribute Transaction transaction, BindingResult bindingResult) throws Exceptions {
+		User user = userService.getCurrentUser();
+		if (user == null) {
+			throw new Exceptions("404", "User Not Found");
+		}
+		CreditCard cc = creditCardService.getCreditCardDetails(user);
+		if (creditCardService.getCreditCardDetails(user) == null) {
+			return "redirect:/merchant/credit-card/create";
+		}
+		transaction.setType("DEBIT");
+		transactionFormValidator.validate(transaction, bindingResult);
+		logger.info("POST request: make a payment for credit card");
+    	creditCardService.createCreditCardTransaction(transaction, cc);
+    	
+        return "redirect:/merchant/credit-card/details";
+    }
+	
+	@GetMapping("/merchant/credit-card/transaction")
+    public String getCreditCardTransacttions(Model model) throws Exceptions {
+		User user = userService.getCurrentUser();
+		if (user == null) {
+			throw new Exceptions("404", "User Not Found");
+		} 
+		CreditCard cc = creditCardService.getCreditCardDetails(user);
+		if (cc == null) {
+			return "redirect:/merchant/credit-card/create";
+		}
+		List<Transaction> transactions = transactionService.getTransactionsByAccount(cc.getAccount());
+		model.addAttribute("transactions", transactions);
+		logger.info("GET request: get credit card all transactions");
+		
+        return "merchant/creditcard_transactions";
+    }
+	
+	@GetMapping("/merchant/credit-card/makepayment")
+    public String createCreditCardMakePayment(Model model) throws Exceptions {
+		User user = userService.getCurrentUser();
+		if (user == null) {
+			return "redirect:/login";
+		}
+		CreditCard cc = creditCardService.getCreditCardDetails(user); 
+		if (cc == null) {
+			return "redirect:/merchant/credit-card/create";
+		}
+		cc = creditCardService.getDueAmount(cc);
+		model.addAttribute("creditcard", cc);
+		logger.info("GET request: make a payment for credit card");
+		
+	    return "merchant/creditcard_transaction_makepayment";
+	}
+	
+
+	@PostMapping("/merchant/credit-card/makepayment")
+    public String createCreditCardMakePayment(@ModelAttribute Transaction transaction, BindingResult bindingResult) throws Exceptions {
+		// TODO validate transaction
+		User user = userService.getCurrentUser();
+		if (user == null) {
+			return "redirect:/login";
+		}
+		CreditCard cc = creditCardService.getCreditCardDetails(user);
+		if (creditCardService.getCreditCardDetails(user) == null) {
+			return "redirect:/merchant/credit-card/create";
+		}
+		logger.info("POST request: make a payment for credit card");
+		
+    	transaction = creditCardService.creditCardMakePayment(cc);
+    	if (transaction == null) {
+    		throw new Exceptions("400", "Bad Request");
+    	}
+    	
+        return "redirect:/merchant/credit-card/details";
+    }
+	
+	@GetMapping("/merchant/credit-card/statement")
+    public String getCreditCardStatements(Model model) throws Exceptions {
+		User user = userService.getCurrentUser();
+		if (user == null) {
+			return "redirect:/login";
+		}
+		CreditCard cc = creditCardService.getCreditCardDetails(user);
+		if (cc == null) {
+			return "redirect:/merchant/credit-card/create";
+		}
+		logger.info("GET request: get statements for credit card");
+    	model.addAttribute("statements", cc.getStatements());
+    	
+        return "merchant/creditcard_statements";
+    }
+	
+	@GetMapping("/merchant/credit-card/statement/{id}")
+    public String getCreditCardStatements(@PathVariable UUID id, Model model) throws Exceptions {
+		User user = userService.getCurrentUser();
+		if (user == null) {
+			return "redirect:/login";
+		}
+		CreditCard cc = creditCardService.getCreditCardDetails(user);
+		if (creditCardService.getCreditCardDetails(user) == null) {
+			return "redirect:/merchant/credit-card/create";
+		}
+		
+		// TODO: adds validation of transaction
+		logger.info("GET request: get statements for credit card");
+		CreditCardStatement statement = creditCardService.getStatementById(cc, id);
+		if (statement == null) {
+			throw new Exceptions("400", "Bad Request");
+		}
+    	model.addAttribute("statement", statement);
+    	
+        return "merchant/creditcard_statementdetail";
+	}
+	
+	@GetMapping("/merchant/credit-card/statement/{id}/pdf")
+    public void getCreditCardStatementPdf(@PathVariable UUID id, HttpServletRequest request, HttpServletResponse response) throws Exceptions {
+		User user = userService.getCurrentUser();
+		if (user == null) {
+			throw new Exceptions("404", "User not found");
+		}
+		CreditCard cc = creditCardService.getCreditCardDetails(user);
+		if (creditCardService.getCreditCardDetails(user) == null) {
+			throw new Exceptions("404", "Credit Card not found");
+		}
+		CreditCardStatement statement = creditCardService.getStatementById(cc, id);
+		if (statement == null) {
+			throw new Exceptions("400", "Bad Request");
+		}
+		
+		final ServletContext servletContext = request.getSession().getServletContext();
+		final File tempDirectory = (File) servletContext.getAttribute("javax.servlet.context.tempdir");
+		final String temperotyFilePath = tempDirectory.getAbsolutePath();
+		
+		String fileName = "statement.pdf";
+		response.setContentType("application/pdf");
+		response.setHeader("Content-disposition", "attachment; filename=" + fileName);
+		
+		try {
+			pdfService.createCreditCardStatementPDF(temperotyFilePath + "\\" + fileName, statement);
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			baos = pdfService.convertPDFToByteArrayOutputStream(temperotyFilePath + "\\" + fileName);
+			OutputStream os = response.getOutputStream();
+			baos.writeTo(os);
+			os.flush();
+		} 
+		catch (Exception e1) {
+			e1.printStackTrace();
+		}		
 	}
 }

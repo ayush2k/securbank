@@ -11,8 +11,6 @@ import java.util.Date;
 
 import javax.transaction.Transactional;
 
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.springframework.stereotype.Service;
 
 import com.itextpdf.text.Document;
