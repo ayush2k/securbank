@@ -2,6 +2,9 @@ package securbank.controller;
 
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
@@ -14,6 +17,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+
+import com.github.mkopylec.recaptcha.validation.RecaptchaValidator;
+import com.github.mkopylec.recaptcha.validation.ValidationResult;
 
 import securbank.exceptions.Exceptions;
 import securbank.models.NewUserRequest;
@@ -35,6 +41,9 @@ public class InternalUserController {
 	
 	@Autowired
     public HttpSession session;
+	
+	@Autowired
+    private RecaptchaValidator recaptchaValidator;
 	
 	final static Logger logger = LoggerFactory.getLogger(InternalUserController.class);
 	
@@ -59,8 +68,8 @@ public class InternalUserController {
     }
 	
 	@PostMapping("/internal/user/signup")
-    public String internalSignupSubmit(@ModelAttribute User user, BindingResult bindingResult) throws Exceptions {
-		UUID token = (UUID) session.getAttribute("verification.token");
+    public String internalSignupSubmit(HttpServletRequest request, HttpServletResponse response, @ModelAttribute User user, BindingResult bindingResult) throws Exceptions {
+    	UUID token = (UUID) session.getAttribute("verification.token");
 		if (token == null) {
 			logger.info("POST request: Signup internal user with invalid session token");
 			
@@ -85,6 +94,11 @@ public class InternalUserController {
 			//return "redirect:/error?code=400";
 			throw new Exceptions("400"," ");
 		}
+		ValidationResult result = recaptchaValidator.validate(request);
+		if (result.isFailure()) {
+			bindingResult.rejectValue("captcha", "invalid.captcha", "Invalid Captcha");	
+		}
+		
 		userFormValidator.validate(user, bindingResult);
 		
 		if (bindingResult.hasErrors()) {
@@ -96,6 +110,10 @@ public class InternalUserController {
 			throw new Exceptions("400","User Invalid !");
 		};
     	
+		Cookie cookie = new Cookie("flag", "true");
+		cookie.setMaxAge(30*24*60*60);
+		response.addCookie(cookie);
+		
         return "redirect:/login";
     }
 }

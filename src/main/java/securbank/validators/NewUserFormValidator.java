@@ -6,6 +6,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import org.springframework.validation.ValidationUtils;
 
+import securbank.models.Pii;
 import securbank.models.User;
 import securbank.utils.ContraintUtils;
 import securbank.dao.UserDao;
@@ -55,6 +56,7 @@ public class NewUserFormValidator implements Validator{
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "zip", "user.zip.required", "Zip is required");
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "state", "user.phone.required", "State is required");
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "role", "user.role.required", "Role is required");
+		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "pii.ssn", "user.pii.ssn.required", "SSN is required");
 		
 		if (!errors.hasFieldErrors("email")) {
 			if (!ContraintUtils.validateEmail(user.getEmail())) {
@@ -98,6 +100,15 @@ public class NewUserFormValidator implements Validator{
 		
 		if (!errors.hasFieldErrors("role") && !ContraintUtils.validateExternalRole(user.getRole())) {
 			errors.rejectValue("role", "user.role.invalid", "Invalid Role");
+		}
+		
+		if (!errors.hasFieldErrors("user.pii.ssn")) {
+			if (!ContraintUtils.validateSSN(user.getPii().getSsn())) {
+				errors.rejectValue("pii.ssn", "user.pii.ssn.contraint", "Invalid SSN");
+			}
+			else if (userDao.ssnExists(user.getPii().getSsn())) {
+				errors.rejectValue("pii.ssn", "user.pii.ssn.exists", "SSN exists");
+			}
 		}
 	} 
 }

@@ -2,6 +2,7 @@ package securbank.controller;
 
 import java.util.UUID;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -21,6 +22,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+
+import com.github.mkopylec.recaptcha.validation.RecaptchaValidator;
+import com.github.mkopylec.recaptcha.validation.ValidationResult;
 
 import securbank.dao.UserDao;
 import securbank.exceptions.Exceptions;
@@ -72,7 +76,11 @@ public class CommonController {
 	@Autowired
 	private ForgotPasswordService forgotPasswordService;
 	
-	ChangePasswordFormValidator changePasswordFormValidator;
+	@Autowired
+    private RecaptchaValidator recaptchaValidator;
+
+	@Autowired
+	private ChangePasswordFormValidator changePasswordFormValidator;
 
 	final static Logger logger = LoggerFactory.getLogger(CommonController.class);
 
@@ -111,24 +119,26 @@ public class CommonController {
 	}
 
 	@PostMapping("/signup")
-	public String signupSubmit(@ModelAttribute User user, BindingResult bindingResult) {
+	public String signupSubmit(HttpServletRequest request, @ModelAttribute User user, BindingResult bindingResult) {
+		ValidationResult result = recaptchaValidator.validate(request);
+		if (result.isFailure()) {
+			bindingResult.rejectValue("captcha", "invalid.captcha", "Invalid Captcha");	
+		}
 		userFormValidator.validate(user, bindingResult);
 		if (bindingResult.hasErrors()) {
 			logger.info("POST request: signup form with validation errors");
 
 			return "signup";
 		}
-
 		logger.info("POST request: signup");
-		logger.info("Username: " + user.getUsername());
-
+		
 		userService.createExternalUser(user);
 
 		return "redirect:/login";
 	}
 
 	@GetMapping("/verify/{id}")
-	public String verifyNewUser(Model model, @PathVariable UUID id) throws Exceptions {
+	public String verifyNewUser(HttpServletResponse response, Model model, @PathVariable UUID id) throws Exceptions {
 		User user = verificationService.getUserByIdAndType(id, "newuser");
 		if (user == null) {
 			throw new Exceptions("404", "Invalid or Expired Verification Link");
@@ -138,7 +148,12 @@ public class CommonController {
 			//return "redirect:/error?code=400";
 			throw new Exceptions("400"," ");
 		}
+		
 		logger.info("GET request: verification of new external user");
+
+		Cookie cookie = new Cookie("flag", "true");
+		cookie.setMaxAge(30*24*60*60 );
+		response.addCookie(cookie);
 
 		return "redirect:/login";
     }
@@ -155,7 +170,7 @@ public class CommonController {
 	
 	@PostMapping("/forgotpassword")
 	public String forgotpasswordsubmit(@ModelAttribute ForgotPasswordRequest forgotPasswordRequest) throws Exceptions{
-		User user = forgotPasswordService.getUserbyUsername(forgotPasswordRequest.getUserName());
+		User user = forgotPasswordService.getUserbyUsername(forgotPasswordRequest.getuserName());
 		if(user == null) {
 			logger.info("POST request: Forgot password with invalid user id");
 			
@@ -185,6 +200,8 @@ public class CommonController {
 			//return "redirect:/error?code=user.notfound";
 			throw new Exceptions("400","User Not found!");
 		}
+		
+		model.addAttribute("request", new CreatePasswordRequest());
 		session.setAttribute("forgotpassword.verification", id);
 		model.addAttribute("createPasswordRequest", new CreatePasswordRequest());
 		logger.info("GET request : Create new password");
@@ -255,21 +272,27 @@ public class CommonController {
 	}
 
 	@PostMapping("/changepassword")
-	public String changeUserPassword(@ModelAttribute ChangePasswordRequest request, BindingResult binding) throws Exceptions {
-		changePasswordFormValidator.validate(request, binding);
+	public String changeUserPassword(@ModelAttribute ChangePasswordRequest changePasswordRequest, BindingResult binding) throws Exceptions {
+		logger.info("entered post request");
+		changePasswordFormValidator.validate(changePasswordRequest, binding);
+		if(binding.hasErrors()){
+			logger.info("POST request: changepassword form with validation errors");
+			return "changepassword";
+		}
 		User user = userService.getCurrentUser();
 		if (user == null) {
+			logger.info("user is null");
 			//return "redirect:/error?code=401";
 			throw new Exceptions("401"," ");
 		}
-		if (!userService.verifyCurrentPassword(user, request.getExistingPassword())) {
+		if (!userService.verifyCurrentPassword(user, changePasswordRequest.getExistingPassword())) {
 			binding.rejectValue("existingPassword", "invalid.password", "Password is not valid");
 		}
 		if (binding.hasErrors()) {
 			logger.info("POST request: changepassword form with validation errors");
 			return "changepassword";
 		}
-		if (userService.changeUserPassword(user, request) != null) {
+		if (userService.changeUserPassword(user, changePasswordRequest) != null) {
 			return "redirect:/login";
 		}
 
@@ -331,6 +354,6 @@ public class CommonController {
 		//return "redirect:/error?code=500";
 		throw new Exceptions("500"," ");
     }
-
+	
 }
 

@@ -9,6 +9,25 @@
 	th:href="@{/webjars/bootstrap/3.3.6/css/bootstrap.min.css}" />
 <script th:src="@{/webjars/jquery/2.1.4/jquery.min.js}"></script>
 <script th:src="@{/webjars/bootstrap/3.3.6/js/bootstrap.min.js}"></script>
+<script>
+  $(document).ready(function () {
+
+    (function ($) {
+
+      $('#filter').keyup(function () {
+
+        var rex = new RegExp($(this).val(), 'i');
+        $('.searchable tr').hide();
+        $('.searchable tr').filter(function () {
+          return rex.test($(this).text());
+        }).show();
+
+      })
+
+    }(jQuery));
+
+  });
+  </script>
 </head>
 <body>
 
@@ -19,11 +38,12 @@
 			<p class="navbar-brand">Cardinals Banking</p>
 		</div>
 		<ul class="nav navbar-nav navbar-right">
-		      <li><a th:href="@{/admin/details}">My Dashboard</a></li>
-		      <li><a th:href="@{/logout}">Logout</a></li>
-		    </ul>
+					<li><a th:href="@{/admin/details}">My Dashboard</a></li>
+					<li><a th:href="@{/logout}">Logout</a></li>
+				</ul>
 		</div>
-</nav>
+	</nav>
+
 	<div class="container">
 		<h3>Admin Dashboard</h3>
 		<ul class="nav nav-tabs nav-justified">
@@ -32,13 +52,31 @@
 					Account</a></li>
 			<li><a th:href="@{/admin/details}">My Profile</a></li>
 			<li><a th:href="@{/admin/user/request}">New Internal User Requests</a></li>
-			<li><a href="/admin/user/pii">Access PII</a></li>
-			<li class="active"><a href="#">System Logs</a></li>
+			<li><a th:href="@{/admin/syslogs}">System Logs</a></li>
+			<li class = "active"><a href="#"> Access PII </a></li>
 		</ul>
 	</div>
-
 	<div class="container">
-		<a th:href="@{/admin/logDownload}">Download Log</a>
+		<div class="input-group">
+			<span class="input-group-addon">Filter</span> <input id="filter"
+				type="text" class="form-control" placeholder="Type here..." />
+		</div>
+		<div class="container">
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th>Username</th>
+						<th>PII</th>
+					</tr>
+				</thead>
+				<tbody class="searchable">
+					<tr th:each="user : ${users}">
+						<td th:text="${user.username}"></td>
+						<td th:text="${user.pii.ssn}"></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
 	</div>
 </body>
 </html>
