@@ -11,6 +11,7 @@ import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * @author Ayush Gupta
@@ -19,6 +20,7 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootApplication
 @EnableAutoConfiguration
 @ComponentScan(basePackages = "securbank")
+@EnableScheduling
 public class SecurbankApplication {
 
 	public static void main(String[] args) {
