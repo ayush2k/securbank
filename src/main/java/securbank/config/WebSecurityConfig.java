@@ -1,16 +1,10 @@
 package securbank.config;
 
-import java.io.File;
-import java.io.IOException;
-
-import org.apache.catalina.connector.Connector;
-import org.apache.coyote.http11.Http11NioProtocol;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
-import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -19,6 +13,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import securbank.authentication.CustomAuthenticationProvider;
+import securbank.authentication.CustomAuthenticationSuccessHandler;
 
 /**
  * @author Ayush Gupta
@@ -27,6 +22,9 @@ import securbank.authentication.CustomAuthenticationProvider;
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+	
+	@Autowired
+	CustomAuthenticationSuccessHandler authSuccessHandler;
 	
 	@Autowired
 	private CustomAuthenticationProvider customAuthenticationProvider;
@@ -48,18 +46,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 //        .logout()
 //            .permitAll();
 
-        http
+		http.formLogin().
+		loginPage("/login")
+        .successHandler(authSuccessHandler)
+        .permitAll()
+        .and()
         .authorizeRequests()
 //        	.antMatchers("/admin/**").access("hasRole('ADMIN')")
 	        .antMatchers("/", "/home").permitAll()
 //	        .anyRequest().authenticated()
 	        .and()
-        .formLogin()
-            .loginPage("/login")
-            //.failureForwardUrl("/login?error")
-            .permitAll()
-            
-            .and()
         .logout()
             .permitAll();
 
@@ -75,5 +71,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return new BCryptPasswordEncoder();
     }
     
-    
+    @Bean
+    public AuthenticationTrustResolver trustResolver() {
+        return new AuthenticationTrustResolverImpl();
+    }
 }
