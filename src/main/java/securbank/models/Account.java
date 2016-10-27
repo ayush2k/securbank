@@ -1,6 +1,7 @@
 package securbank.models;
 
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -13,6 +14,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
@@ -29,7 +31,6 @@ public class Account {
 	
 	/** Account number is unique. */
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long accountNumber;
 	
 	/** multiple account can be associated with an user	 */
@@ -57,6 +58,8 @@ public class Account {
 	
 	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "account")
 	private Set<Transaction> transactions = new HashSet<Transaction>(0);
+	
+	private static final Random generator = new Random();
 	
 	public Account() {
 		
@@ -206,4 +209,10 @@ public class Account {
 				+ ", createdOn=" + createdOn + ", active=" + active + ", creditCards=" + creditCards + ", transactions="
 				+ transactions + "]";
 	}
+
+	@PrePersist
+	private void onCreate() {
+		this.accountNumber = new Long(generator.nextInt(900000000) + 100000000);
+	}
+	
 }
