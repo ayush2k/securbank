@@ -53,6 +53,7 @@ public class ManagerController {
 	@Autowired
 	private AccountService accountService;
 	
+	@Autowired
 	private InternalEditUserFormValidator editUserFormValidator;
 
 	@Autowired

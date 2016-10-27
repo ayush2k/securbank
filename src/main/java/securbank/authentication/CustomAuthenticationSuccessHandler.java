@@ -39,5 +39,4 @@ public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthent
 
         return authService.getRedirectUrlFromRole(role);
     }
-
 }
