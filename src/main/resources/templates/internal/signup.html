@@ -9,6 +9,7 @@
 	th:href="@{/webjars/bootstrap/3.3.6/css/bootstrap.min.css}" />
 <script th:src="@{/webjars/jquery/2.1.4/jquery.min.js}"></script>
 <script th:src="@{/webjars/bootstrap/3.3.6/js/bootstrap.min.js}"></script>
+<script src='https://www.google.com/recaptcha/api.js'></script>
 </head>
 <body>
 
@@ -173,12 +174,26 @@
 							th:if="${#fields.hasErrors('zip')}" th:errors="*{zip}"></div>
 					</div>
 				</div>
+
+				<!-- Text input-->
 				<div class="form-group">
-					<div class="g-recaptcha" data-sitekey="6LfTdwoUAAAAALjDZOzAQwO_ZP4r4uboujIAH1ds"></div>
-					<div class="alert alert-danger"
-							th:if="${#fields.hasErrors('captcha')}" th:errors="*{captcha}"></div>
+					<label class="col-md-4 control-label" for="textinput">SSN</label>
+					<div class="col-md-4">
+						<input id="textinput" name="textinput" type="text" placeholder=""
+							class="form-control input-md" th:field="*{pii.ssn}" />
+						<div class="alert alert-danger"
+							th:if="${#fields.hasErrors('pii.ssn')}" th:errors="*{pii.ssn}"></div>
+					</div>
 				</div>
-				
+
+				<div class="form-group">
+					<label class="col-md-4 control-label" for="captcha"></label>
+					<div class="col-md-4">
+					<div class="g-recaptcha" data-sitekey="6LfTdwoUAAAAALjDZOzAQwO_ZP4r4uboujIAH1ds"></div>					<div class="alert alert-danger"
+							th:if="${#fields.hasErrors('captcha')}" th:errors="*{captcha}"></div>
+						</div>
+				</div>
+
 
 				<!-- Button -->
 				<div class="form-group">

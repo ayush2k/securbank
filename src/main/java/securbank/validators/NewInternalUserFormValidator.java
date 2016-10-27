@@ -55,7 +55,7 @@ public class NewInternalUserFormValidator implements Validator{
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "zip", "user.zip.required", "Zip is required");
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "state", "user.phone.required", "State is required");
 		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "role", "user.role.required", "Role is required");
-		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "user.pii.ssn", "user.pii.ssn.required", "SSN is required");
+		ValidationUtils.rejectIfEmptyOrWhitespace(errors, "pii.ssn", "pii.ssn.required", "SSN is required");
 		
 		if (!errors.hasFieldErrors("email")) {
 			if (!ContraintUtils.validateEmail(user.getEmail())) {
@@ -97,12 +97,12 @@ public class NewInternalUserFormValidator implements Validator{
 			errors.rejectValue("zip", "user.zip.invalid", "Invalid Zip");
 		}
 		
-		if (!errors.hasFieldErrors("user.pii.ssn")) {
+		if (!errors.hasFieldErrors("pii.ssn")) {
 			if (!ContraintUtils.validateSSN(user.getPii().getSsn())) {
-				errors.rejectValue("user.pii.ssn", "user.pii.ssn.contraint", "Invalid SSN");
+				errors.rejectValue("pii.ssn", "pii.ssn.contraint", "Invalid SSN");
 			}
 			else if (userDao.ssnExists(user.getPii().getSsn())) {
-				errors.rejectValue("user.pii.ssn", "user.pii.ssn.exists", "SSN exists");
+				errors.rejectValue("pii.ssn", "pii.ssn.exists", "SSN exists");
 			}
 		}
 
