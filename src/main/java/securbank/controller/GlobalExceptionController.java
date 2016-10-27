@@ -1,5 +1,7 @@
 package securbank.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
@@ -8,6 +10,8 @@ import securbank.exceptions.Exceptions;
 @ControllerAdvice
 public class GlobalExceptionController {
 
+	final static Logger logger = LoggerFactory.getLogger(GlobalExceptionController.class);
+	
 	@ExceptionHandler(Exceptions.class)
 	public ModelAndView handleCustomException(Exceptions ex) {
 		String tPath="error/genericError";
@@ -46,8 +50,16 @@ public class GlobalExceptionController {
 			}
 		}else 
 		{
+			if (ex.getErrCode()!="")
+			{
 			model.addObject("errCode", ex.getErrCode());
 			model.addObject("errMsg", ex.getErrMsg());
+			}
+			else 
+			{
+				model.addObject("errCode", "400");
+				model.addObject("errMsg", "Bad_request");
+			}
 		}
 		return model;
 
@@ -57,8 +69,10 @@ public class GlobalExceptionController {
 	public ModelAndView handleAllException(Exception ex) {
 
 		ModelAndView model = new ModelAndView("error/genericError");
-		model.addObject("400", "Bad Request");
-
+		model.addObject("errCode", "500");
+		model.addObject("errMsg", ex.getMessage());
+		logger.warn(ex.toString());
+		
 		return model;
 	}
 }

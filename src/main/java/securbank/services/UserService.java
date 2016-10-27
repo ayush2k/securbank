@@ -19,7 +19,7 @@ public interface UserService {
 	public User getCurrentUser();
 	public User editUser(User user);
 	public void deleteUser(UUID id);
-	public boolean verifyNewUser(UUID userId);
+	public boolean verifyNewUser(User user);
 	public NewUserRequest getNewUserRequest(UUID newUserRequestId);
 	public List<User> getUsersByType(String type);
 	public User getUserByIdAndActive(UUID id);
@@ -37,5 +37,6 @@ public interface UserService {
 	public boolean verifyCurrentPassword(User user,String password);
 	public User changeUserPassword(User user, ChangePasswordRequest model);
 	public User getUserByEmail(String email);
+	public List<User> ListAllPII();
 }
 

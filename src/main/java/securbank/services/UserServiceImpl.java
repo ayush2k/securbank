@@ -23,7 +23,9 @@ import securbank.models.Account;
 import securbank.models.ChangePasswordRequest;
 import securbank.models.ModificationRequest;
 import securbank.models.NewUserRequest;
+import securbank.models.Pii;
 import securbank.models.User;
+import securbank.models.Verification;
 import securbank.models.LoginAttempt;
 
 /**
@@ -54,6 +56,9 @@ public class UserServiceImpl implements UserService {
 	
 	private SimpleMailMessage message;
 	
+	@Autowired 
+	private VerificationService verificationService;
+	
 	@Autowired
 	private Environment env;
 	
@@ -68,7 +73,10 @@ public class UserServiceImpl implements UserService {
      */
 	@Override
 	public User createExternalUser(User user) {
+		Pii pii = new Pii();
+		
 		logger.info("Creating new external user");
+		logger.info(user.toString());
 		user.setPassword(encoder.encode(user.getPassword()));
 		user.setCreatedOn(LocalDateTime.now());
 		user.setActive(false);
@@ -76,11 +84,16 @@ public class UserServiceImpl implements UserService {
 		
 		LoginAttempt attempt = new LoginAttempt(user, 0, LocalDateTime.now());		
 		user.setLoginAttempt(attempt);
-		user = userDao.save(user);
 		
+		pii.setUser(user);
+		pii.setSsn(user.getPii().getSsn());
+		user.setPii(pii);
+		user = userDao.save(user);
+		Verification verification = verificationService.createVerificationCodeByType(user, "newuser");
+
 		//setup up email message
 		message = new SimpleMailMessage();
-		message.setText(env.getProperty("external.user.verification.body").replace(":id:",user.getUserId().toString()));
+		message.setText(env.getProperty("external.user.verification.body").replace(":id:",verification.getVerificationId().toString()));
 		message.setSubject(env.getProperty("external.user.verification.subject"));
 		message.setTo(user.getEmail());
 		emailService.sendEmail(message);
@@ -98,7 +111,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public User createInternalUser(User user) {
 		NewUserRequest newUserRequest = new NewUserRequest();
-		
+		Pii pii = new Pii();
 		// verify if request exists
 		newUserRequest = newUserRequestDao.findByEmailAndRole(user.getEmail(), user.getRole()); 
 		if (newUserRequest == null) {
@@ -124,6 +137,9 @@ public class UserServiceImpl implements UserService {
 		user.setCreatedOn(LocalDateTime.now());
 		user.setActive(true);
 		
+		pii.setUser(user);
+		pii.setSsn(user.getPii().getSsn());
+		user.setPii(pii);
 		return userDao.save(user);
 	}
 	
@@ -134,8 +150,7 @@ public class UserServiceImpl implements UserService {
      * @return user
      */
 	@Override
-	public boolean verifyNewUser(UUID userId) {
-		User user = userDao.findById(userId);
+	public boolean verifyNewUser(User user) {
 		if (user == null || userDao.emailExists(user.getEmail()) || userDao.phoneExists(user.getPhone()) || userDao.usernameExists(user.getUsername())) {
 			logger.info("Verification for existing email, phone or username");
 			return false;
@@ -214,7 +229,8 @@ public class UserServiceImpl implements UserService {
      */
 	public void deleteUser(UUID id) {
 		User current = userDao.findById(id);
-		userDao.remove(current);
+		current.setActive(false);
+		userDao.update(current);
 		
 		return;
 	}
@@ -650,5 +666,11 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public User getUserByEmail(String email) {
 		return userDao.findByUsernameOrEmail(email);
+	}
+	
+	@Override
+	public List<User> ListAllPII() {
+		List<User> allPii = userDao.accessPii();
+		return allPii;
 	}
 }
