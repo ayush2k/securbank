@@ -3,8 +3,12 @@ package securbank.services;
 import java.util.List;
 import java.util.UUID;
 
+import org.joda.time.LocalDateTime;
+
+import securbank.models.Account;
 import securbank.models.Transaction;
 import securbank.models.Transfer;
+import securbank.models.User;
 
 /**
  * @author Mitikaa
@@ -25,6 +29,11 @@ public interface TransactionService {
 	public Transaction getPendingTransactionByAccountNumber(Long accountNumber);
 	public Transaction approveTransactionFromTransfer(Transaction transaction);
 	public boolean isTransactionValid(Transaction transaction);
+	public List<Transaction> getTransactionsByAccount(Account account);
+	public List<Transaction> getTransactionsByAccountAndDateTimeRange(Account account, LocalDateTime startDt, LocalDateTime endDt);
+	public Double getSumByAccountAndDateRange(Account account, LocalDateTime start, LocalDateTime end);
+	public Transaction createInternalTransationByType(Transaction transaction, String type);
+	public Transaction createCardPaymentTransaction(Double amount, User user);
+	public Transaction initiateCreditCardTransaction(Transaction transaction);
 	public List<Transaction> getNonCriticalTransactionsByStatus(String approvalStatus);
-	
 }
