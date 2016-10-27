@@ -122,7 +122,10 @@ public class User {
 	/** One to many relation ship  */
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
 	private Set<ModificationRequest> modificationRequest = new HashSet<ModificationRequest>(0);
-
+	
+	@Transient
+	private String captcha;
+	
 	public User() {
 		
 	}
@@ -496,6 +499,20 @@ public class User {
 	 */
 	public void setModificationRequest(Set<ModificationRequest> modificationRequest) {
 		this.modificationRequest = modificationRequest;
+	}
+
+	/**
+	 * @return the captcha
+	 */
+	public String getCaptcha() {
+		return captcha;
+	}
+
+	/**
+	 * @param captcha the captcha to set
+	 */
+	public void setCaptcha(String captcha) {
+		this.captcha = captcha;
 	}
 
 	/* (non-Javadoc)

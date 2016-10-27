@@ -22,6 +22,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.github.mkopylec.recaptcha.validation.RecaptchaValidator;
+import com.github.mkopylec.recaptcha.validation.ValidationResult;
+
 import securbank.dao.UserDao;
 import securbank.exceptions.Exceptions;
 import securbank.models.ChangePasswordRequest;
@@ -72,6 +75,9 @@ public class CommonController {
 	@Autowired
 	private ForgotPasswordService forgotPasswordService;
 	
+	@Autowired
+    private RecaptchaValidator recaptchaValidator;
+	
 	ChangePasswordFormValidator changePasswordFormValidator;
 
 	final static Logger logger = LoggerFactory.getLogger(CommonController.class);
@@ -111,7 +117,11 @@ public class CommonController {
 	}
 
 	@PostMapping("/signup")
-	public String signupSubmit(@ModelAttribute User user, BindingResult bindingResult) {
+	public String signupSubmit(HttpServletRequest request, @ModelAttribute User user, BindingResult bindingResult) {
+		ValidationResult result = recaptchaValidator.validate(request);
+		if (result.isFailure()) {
+			bindingResult.rejectValue("captcha", "invalid.captcha", "Invalid Captcha");	
+		}
 		userFormValidator.validate(user, bindingResult);
 		if (bindingResult.hasErrors()) {
 			logger.info("POST request: signup form with validation errors");
@@ -124,7 +134,7 @@ public class CommonController {
 
 		userService.createExternalUser(user);
 
-		return "redirect:/";
+		return "redirect:/login";
 	}
 
 	@GetMapping("/verify/{id}")
@@ -136,7 +146,7 @@ public class CommonController {
 		}
 		logger.info("GET request: verification of new external user");
 
-		return "redirect:/";
+		return "redirect:/login";
     }
 	
 
