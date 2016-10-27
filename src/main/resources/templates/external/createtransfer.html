@@ -9,6 +9,24 @@ xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
   th:href="@{/webjars/bootstrap/3.3.6/css/bootstrap.min.css}" />
   <script th:src="@{/webjars/jquery/2.1.4/jquery.min.js}"></script>
   <script th:src="@{/webjars/bootstrap/3.3.6/js/bootstrap.min.js}"></script>
+  <script src="http://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/virtual-keyboard/1.26.5/css/keyboard.min.css" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/virtual-keyboard/1.26.5/js/jquery.keyboard.js"></script>
+  <script>
+jQuery(function($) {
+  $('#otpinput').keyboard({
+    layout: 'num',
+    css: {
+        input: 'form-control input-sm',
+        container: 'center-block dropdown-menu',
+        buttonDefault: 'btn btn-default',
+        buttonHover: 'btn-primary',
+        buttonAction: 'active',
+        buttonDisabled: 'disabled'
+    }
+});
+});
+  </script>
 </head>
 <body>
   <nav class="navbar navbar-default">
@@ -41,7 +59,7 @@ xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
   </div>
 
   <div class="alert alert-success" th:if="${param.successTransaction}">Successfuly initiated transfer</div>
-  
+
   <div class="container" style="margin-top:15px;">
     <form class="form-horizontal" action="#" th:action="@{/user/createtransfer}" th:object="${transfer}" method="post">
       <fieldset>
@@ -70,9 +88,9 @@ xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
           th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}"></div>
         </div>
         <div class="form-group">
-          <label class="col-xs-5 control-label" for="textinput">OTP</label>
+          <label class="col-xs-5 control-label" for="otpinput">OTP</label>
           <div class="col-xs-2">
-            <input id="textinput" name="textinput" type="text" placeholder=""
+            <input id="otpinput" name="otpinput" type="text" placeholder=""
             class="form-control input-md" required="" th:field="*{otp}"/>
           </div>
           <div>
