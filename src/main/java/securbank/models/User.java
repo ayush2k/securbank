@@ -47,7 +47,6 @@ public class User {
 	
 	@NotNull
 	@Size(min = 3, max = 15)
-	@Column(name = "username", unique = true)
 	private String username;
 	
 	@NotNull
@@ -70,12 +69,10 @@ public class User {
 	
 	@NotNull
 	@Email
-	@Column(name = "email", unique = true)
 	private String email;
 
 	@NotNull
 	@Size(min = 10, max = 10)
-	@Column(name = "phone", unique = true)
 	private String phone;
 
 	@NotNull
@@ -123,6 +120,9 @@ public class User {
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
 	private Set<ModificationRequest> modificationRequest = new HashSet<ModificationRequest>(0);
 	
+	@Transient
+	private String captcha;
+
 	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
 	private Pii pii;
 	
@@ -505,6 +505,20 @@ public class User {
 		this.modificationRequest = modificationRequest;
 	}
 
+	/**
+	 * @return the captcha
+	 */
+	public String getCaptcha() {
+		return captcha;
+	}
+
+	/**
+	 * @param captcha the captcha to set
+	 */
+	public void setCaptcha(String captcha) {
+		this.captcha = captcha;
+	}
+	
 	/**
 	 * @return the pii
 	 */
