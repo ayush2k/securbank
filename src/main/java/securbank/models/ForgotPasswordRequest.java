@@ -1,6 +1,5 @@
 package securbank.models;
 
-import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
 
