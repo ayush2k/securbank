@@ -3,13 +3,12 @@ package securbank.validators;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
-import org.springframework.validation.Validator;
 import org.springframework.validation.ValidationUtils;
+import org.springframework.validation.Validator;
 
-import securbank.models.Pii;
+import securbank.dao.UserDao;
 import securbank.models.User;
 import securbank.utils.ContraintUtils;
-import securbank.dao.UserDao;
 
 /**
  * @author Ayush Gupta

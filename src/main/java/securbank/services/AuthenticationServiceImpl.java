@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.crypto.bcrypt.BCrypt;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,10 +28,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	@Autowired
 	private UserDao userDao;
 
-	
-	@Autowired 
-	private PasswordEncoder encoder;
-	
 	@Autowired
 	private EmailService emailService;
 	
@@ -44,9 +39,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 	@Autowired
 	VerificationService verificationService;
 	
-	@Autowired
-	private ForgotPasswordService forgotPasswordService;
-
 	@Autowired
 	private UserService userService;
 	
