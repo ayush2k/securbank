@@ -1,5 +1,6 @@
 package securbank.controller;
 
+import java.security.Principal;
 import java.util.UUID;
 
 import javax.servlet.http.Cookie;
@@ -10,6 +11,7 @@ import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.couchbase.CouchbaseProperties.Env;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.github.mkopylec.recaptcha.validation.RecaptchaValidator;
 import com.github.mkopylec.recaptcha.validation.ValidationResult;
@@ -355,5 +358,13 @@ public class CommonController {
 		throw new Exceptions("500"," ");
     }
 	
+	@GetMapping("/error/access-denied")
+	public ModelAndView handleAccessDenied(Principal user) {
+		ModelAndView model = new ModelAndView("error/genericError");
+		model.addObject("errCode", "403");
+		model.addObject("errMsg", "Access Denied");
+		
+		return model;
+	}
 }
 
