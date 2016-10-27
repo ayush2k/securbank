@@ -545,4 +545,12 @@ public class TransactionServiceImpl implements TransactionService {
 		return true;
 	}
 
+	@Override
+	public List<Transaction> getNonCriticalTransactionsByStatus(String approvalStatus) {
+		logger.info("Getting pending transactions by approval status");
+		if(approvalStatus==null){
+			return null;
+		}
+		return transactionDao.findNonCriticalByApprovalStatus(approvalStatus);
+	}
 }

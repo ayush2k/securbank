@@ -390,6 +390,15 @@ public class AdminController {
 		return "admin/systemlogs";
 	}
 	
+	/**Returns a list of all users */
+	@GetMapping("/admin/user/pii")
+	public String adminAccessPII(Model model){
+		List <User> userList = userService.ListAllPII();
+		model.addAttribute("users", userList);
+		
+		return "admin/accesspii";
+	}
+
 	@GetMapping("/admin/logDownload")
     public void doDownload(HttpServletRequest request,
             HttpServletResponse response) throws IOException {
