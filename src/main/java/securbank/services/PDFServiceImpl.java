@@ -8,15 +8,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Set;
 
 import javax.transaction.Transactional;
 
 import org.springframework.stereotype.Service;
-
-import securbank.models.Account;
-import securbank.models.Transaction;
-import securbank.models.User;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -27,6 +22,10 @@ import com.itextpdf.text.Phrase;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+
+import securbank.models.Account;
+import securbank.models.Transaction;
+import securbank.models.User;
 
 @Service("pdfService")
 @Transactional

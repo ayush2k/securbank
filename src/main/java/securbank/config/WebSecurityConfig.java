@@ -33,31 +33,23 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 
 
-//        http
-//        .authorizeRequests()
-//	        .antMatchers("/", "/home").permitAll()
-//	        .anyRequest().authenticated()
-//	        .and()
-//        .formLogin()
-//            .loginPage("/login")
-//            .failureForwardUrl("/login?error")
-//            .permitAll()
-//            .and()
-//        .logout()
-//            .permitAll();
-
 		http.formLogin().
 		loginPage("/login")
         .successHandler(authSuccessHandler)
         .permitAll()
         .and()
         .authorizeRequests()
-//        	.antMatchers("/admin/**").access("hasRole('ADMIN')")
-	        .antMatchers("/", "/home").permitAll()
-//	        .anyRequest().authenticated()
-	        .and()
+	    	.antMatchers("/admin/**").hasRole("ADMIN")
+	    	.antMatchers("/user/**").hasRole("INDIVIDUAL")
+	    	.antMatchers("/merchant/**").hasRole("MERCHANT")
+	    	.antMatchers("/employee/**").hasRole("EMPLOYEE")
+	    	.antMatchers("/manager/**").hasRole("MANAGER")
+	    	.antMatchers("/changepassword/").hasAnyRole()
+    	.and()
         .logout()
-            .permitAll();
+            .permitAll()
+		.and()
+			.exceptionHandling().accessDeniedPage("/error/access-denied");
 
     }
 
