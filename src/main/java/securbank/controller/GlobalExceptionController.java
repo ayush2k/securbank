@@ -69,7 +69,7 @@ public class GlobalExceptionController {
 	public ModelAndView handleAllException(Exception ex) {
 
 		ModelAndView model = new ModelAndView("error/genericError");
-		model.addObject("errCode", "400");
+		model.addObject("errCode", "500");
 		model.addObject("errMsg", ex.getMessage());
 		logger.warn(ex.toString());
 		
