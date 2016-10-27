@@ -125,11 +125,14 @@ public class User {
 	
 	@Transient
 	private String captcha;
+
+	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
+	private Pii pii;
 	
 	public User() {
 		
 	}
-
+	
 	/**
 	 * @param userId
 	 * @param role
@@ -139,7 +142,7 @@ public class User {
 	 * @param confirmPassword
 	 * @param firstName
 	 * @param middleName
-	 * @param lastName
+	 * @param lastName	
 	 * @param email
 	 * @param phone
 	 * @param addressLine1
@@ -152,13 +155,15 @@ public class User {
 	 * @param lastLogin
 	 * @param active
 	 * @param accounts
+	 * @param loginAttempt
 	 * @param modificationRequest
+	 * @param pii
 	 */
 	public User(UUID userId, String role, String type, String username, String password, String confirmPassword,
 			String firstName, String middleName, String lastName, String email, String phone, String addressLine1,
 			String addressLine2, String city, String state, String zip, LocalDateTime createdOn,
-			LocalDateTime modifiedOn, LocalDateTime lastLogin, Boolean active, Set<Account> accounts,LoginAttempt attempt,
-			Set<ModificationRequest> modificationRequest) {
+			LocalDateTime modifiedOn, LocalDateTime lastLogin, Boolean active, Set<Account> accounts,
+			LoginAttempt loginAttempt, Set<ModificationRequest> modificationRequest, Pii pii) {
 		super();
 		this.userId = userId;
 		this.role = role;
@@ -181,9 +186,11 @@ public class User {
 		this.lastLogin = lastLogin;
 		this.active = active;
 		this.accounts = accounts;
-		this.loginAttempt = attempt;
+		this.loginAttempt = loginAttempt;
 		this.modificationRequest = modificationRequest;
+		this.pii = pii;
 	}
+
 
 	/**
 	 * @return the userId
@@ -514,6 +521,20 @@ public class User {
 	public void setCaptcha(String captcha) {
 		this.captcha = captcha;
 	}
+	
+	/**
+	 * @return the pii
+	 */
+	public Pii getPii() {
+		return pii;
+	}
+
+	/**
+	 * @param pii the pii to set
+	 */
+	public void setPii(Pii pii) {
+		this.pii = pii;
+	}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
@@ -525,7 +546,8 @@ public class User {
 				+ middleName + ", lastName=" + lastName + ", email=" + email + ", phone=" + phone + ", addressLine1="
 				+ addressLine1 + ", addressLine2=" + addressLine2 + ", city=" + city + ", state=" + state + ", zip="
 				+ zip + ", createdOn=" + createdOn + ", modifiedOn=" + modifiedOn + ", lastLogin=" + lastLogin
-				+ ", active=" + active + ", accounts=" + accounts + ", loginAttempt=" + loginAttempt 
-				+ ", modificationRequest=" + modificationRequest+ "]";
+				+ ", active=" + active + ", accounts=" + accounts + ", loginAttempt=" + loginAttempt
+				+ ", modificationRequest=" + modificationRequest + ", pii=" + pii + "]";
 	}
+
 }
