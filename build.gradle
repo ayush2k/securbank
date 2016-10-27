@@ -15,8 +15,13 @@ apply plugin: 'eclipse'
 apply plugin: 'spring-boot'
 apply plugin: 'application'
 
+
+springBoot {
+    executable = true
+}
+
 jar {
-	baseName = 'securbank.Hello'
+	baseName = 'securbank'
 	version = '0.0.1'
 }
 sourceCompatibility = 1.7
