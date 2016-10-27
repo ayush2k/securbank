@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
+
 import securbank.exceptions.Exceptions;
 
 @ControllerAdvice
@@ -67,7 +68,6 @@ public class GlobalExceptionController {
 
 	@ExceptionHandler(Exception.class)
 	public ModelAndView handleAllException(Exception ex) {
-
 		ModelAndView model = new ModelAndView("error/genericError");
 		model.addObject("errCode", "500");
 		model.addObject("errMsg", ex.getMessage());

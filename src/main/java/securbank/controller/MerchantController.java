@@ -281,6 +281,7 @@ public class MerchantController {
 			throw new Exceptions("404","Transfer Not Found !");
 		}
 		model.addAttribute("transfers", transfers);
+		model.addAttribute("currentUser", userService.getCurrentUser());
 		
         return "merchant/pendingtransfers";
     }

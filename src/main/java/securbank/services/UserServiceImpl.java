@@ -229,7 +229,8 @@ public class UserServiceImpl implements UserService {
      */
 	public void deleteUser(UUID id) {
 		User current = userDao.findById(id);
-		userDao.remove(current);
+		current.setActive(false);
+		userDao.update(current);
 		
 		return;
 	}

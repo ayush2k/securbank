@@ -1,5 +1,6 @@
 package securbank.controller;
 
+import java.security.Principal;
 import java.util.UUID;
 
 import javax.servlet.http.Cookie;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.github.mkopylec.recaptcha.validation.RecaptchaValidator;
 import com.github.mkopylec.recaptcha.validation.ValidationResult;
@@ -145,10 +147,10 @@ public class CommonController {
 		}
 		if (userService.verifyNewUser(user) == false) {
 			logger.info("GET request: verification failed of new external user");
-			//return "redirect:/error?code=400";
+
 			throw new Exceptions("400"," ");
 		}
-		
+		verificationService.removeVerification(id);
 		logger.info("GET request: verification of new external user");
 
 		Cookie cookie = new Cookie("flag", "true");
@@ -355,5 +357,13 @@ public class CommonController {
 		throw new Exceptions("500"," ");
     }
 	
+	@GetMapping("/error/access-denied")
+	public ModelAndView handleAccessDenied(Principal user) {
+		ModelAndView model = new ModelAndView("error/genericError");
+		model.addObject("errCode", "403");
+		model.addObject("errMsg", "Access Denied");
+		
+		return model;
+	}
 }
 

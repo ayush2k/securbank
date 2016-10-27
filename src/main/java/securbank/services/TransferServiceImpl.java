@@ -13,7 +13,6 @@ import org.springframework.core.env.Environment;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
 
-import securbank.dao.AccountDao;
 import securbank.dao.TransactionDao;
 import securbank.dao.TransferDao;
 import securbank.models.Account;
@@ -36,13 +35,7 @@ public class TransferServiceImpl implements TransferService{
 	
 	@Autowired
 	private TransactionDao transactionDao;
-	
-	@Autowired
-	private AccountDao accountDao;
-	
-	@Autowired 
-	private AccountService accountService;
-	
+		
 	@Autowired
 	private TransactionService transactionService;
 	

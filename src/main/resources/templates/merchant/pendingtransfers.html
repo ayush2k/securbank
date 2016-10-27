@@ -79,7 +79,8 @@
           <td th:text="${transfer.toAccount.user.username}"></td>
           <td th:text="${transfer.toAccount.accountNumber}"></td>
           <td th:text="${transfer.amount}"></td>
-          <td><a th:href="@{/merchant/transfer/{id}(id=${transfer.transferId})}">View</a></td>
+          <td th:if="${currentUser.username!=transfer.toAccount.user.username}"><a th:href="@{/merchant/transfer/{id}(id=${transfer.transferId})}">View</a></td>
+					<td th:if="${currentUser.username==transfer.toAccount.user.username}">Awaiting Approval</td>
 				</tr>
 			</tbody>
 		</table>
