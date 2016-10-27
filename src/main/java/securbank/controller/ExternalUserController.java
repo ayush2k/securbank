@@ -220,7 +220,6 @@ public class ExternalUserController {
 		
 		List<Transfer> transfers = transferService.getTransfersByStatusAndUser(userService.getCurrentUser(),"Waiting");
 		if (transfers == null) {
-			//return "redirect:/error?code=404&path=transfers-not-found";
 			throw new Exceptions("404","Transfer Not Found !");
 		}
 		model.addAttribute("transfers", transfers);
@@ -233,28 +232,25 @@ public class ExternalUserController {
 		
 		Transfer transfer = transferService.getTransferById(id);
 		if (transfer == null) {
-			//return "redirect:/error?code=404&path=request-invalid";
 			throw new Exceptions("404","Invalid Request !");
 		}
 		
 		// checks if user is authorized for the request to approve
 		if (!transfer.getFromAccount().getUser().getEmail().equalsIgnoreCase(userService.getCurrentUser().getEmail())) {
 			logger.warn("Transafer made TO non external account");
-			//return "redirect:/error?code=401&path=request-unauthorised";
+			
 			throw new Exceptions("401","Unauthorized request !");
 		}
 		
 		if (!transfer.getToAccount().getUser().getRole().equalsIgnoreCase("ROLE_MERCHANT")) {
 			logger.warn("Transafer made FROM non merchant account");
 					
-			//return "redirect:/error?code=401&path=request-unauthorised";
 			throw new Exceptions("401","Unauthorized request !");
 		}
 		
 		if("approved".equalsIgnoreCase(trans.getStatus())){
 			//check if transfer is valid in case modified
 			if(transferService.isTransferValid(transfer)==false){
-				//return "redirect:/error?code=401&path=amount-Invalid";
 				throw new Exceptions("401","Invalid Amount !");
 			}
 			transferService.approveTransferToPending(transfer);
@@ -269,10 +265,10 @@ public class ExternalUserController {
     }
 	
 	@GetMapping("/user/credit-card/create")
-    public String createCreditCard(Model model) {
+    public String createCreditCard(Model model) throws Exceptions {
 		User user = userService.getCurrentUser();
 		if (user == null) {
-			return "redirect:/error?code=user-notfound";
+			throw new Exceptions("404", "User Not Found");
 		}
 		if (creditCardService.getCreditCardDetails(user) != null) {
 			return "redirect:/user/credit-card/details";
@@ -284,10 +280,10 @@ public class ExternalUserController {
     }
 	
 	@PostMapping("/user/credit-card/create")
-    public String createCreditCard(@ModelAttribute CreditCard cc, BindingResult bindingResult) {
+    public String createCreditCard(@ModelAttribute CreditCard cc, BindingResult bindingResult)throws Exceptions {
 		User user = userService.getCurrentUser();
 		if (user == null) {
-			return "redirect:/error?code=user-notfound";
+			throw new Exceptions("404", "User Not Found");
 		}
 		if (creditCardService.getCreditCardDetails(user) != null) {
 			return "redirect:/user/credit-card/details";
@@ -301,10 +297,10 @@ public class ExternalUserController {
     }
 	
 	@GetMapping("/user/credit-card/details")
-    public String detailCreditCard(Model model) {
+    public String detailCreditCard(Model model) throws Exceptions {
 		User user = userService.getCurrentUser();
 		if (user == null) {
-			return "redirect:/error?code=user-notfound";
+			throw new Exceptions("404", "User Not Found");
 		}
 		CreditCard creditCard = creditCardService.getCreditCardDetails(user); 
 		if (creditCard == null) {
@@ -317,10 +313,10 @@ public class ExternalUserController {
     }
 	
 	@GetMapping("/user/credit-card/transaction/create")
-    public String createCreditCardTransacttion(Model model) {
+    public String createCreditCardTransacttion(Model model) throws Exceptions {
 		User user = userService.getCurrentUser();
 		if (user == null) {
-			return "redirect:/error?code=user-notfound";
+			throw new Exceptions("404", "User Not Found");
 		}
 		if (creditCardService.getCreditCardDetails(user) == null) {
 			return "redirect:/user/credit-card/create";
@@ -332,11 +328,10 @@ public class ExternalUserController {
     }
 	
 	@PostMapping("/user/credit-card/transaction/create")
-    public String createCreditCardTransaction(@ModelAttribute Transaction transaction, BindingResult bindingResult) {
-		// TODO validate transaction
+    public String createCreditCardTransaction(@ModelAttribute Transaction transaction, BindingResult bindingResult) throws Exceptions {
 		User user = userService.getCurrentUser();
 		if (user == null) {
-			return "redirect:/error?code=user-notfound";
+			throw new Exceptions("404", "User Not Found");
 		}
 		CreditCard cc = creditCardService.getCreditCardDetails(user);
 		if (creditCardService.getCreditCardDetails(user) == null) {
@@ -351,10 +346,10 @@ public class ExternalUserController {
     }
 	
 	@GetMapping("/user/credit-card/transaction")
-    public String getCreditCardTransacttions(Model model) {
+    public String getCreditCardTransacttions(Model model) throws Exceptions {
 		User user = userService.getCurrentUser();
 		if (user == null) {
-			return "redirect:/error?code=user-notfound";
+			throw new Exceptions("404", "User Not Found");
 		} 
 		CreditCard cc = creditCardService.getCreditCardDetails(user);
 		if (cc == null) {
@@ -368,7 +363,7 @@ public class ExternalUserController {
     }
 	
 	@GetMapping("/user/credit-card/makepayment")
-    public String createCreditCardMakePayment(Model model) {
+    public String createCreditCardMakePayment(Model model) throws Exceptions {
 		User user = userService.getCurrentUser();
 		if (user == null) {
 			return "redirect:/login";
@@ -386,7 +381,7 @@ public class ExternalUserController {
 	
 
 	@PostMapping("/user/credit-card/transaction/makepayment")
-    public String createCreditCardMakePayment(@ModelAttribute Transaction transaction, BindingResult bindingResult) {
+    public String createCreditCardMakePayment(@ModelAttribute Transaction transaction, BindingResult bindingResult) throws Exceptions {
 		// TODO validate transaction
 		User user = userService.getCurrentUser();
 		if (user == null) {
@@ -400,14 +395,14 @@ public class ExternalUserController {
 		
     	transaction = creditCardService.creditCardMakePayment(cc);
     	if (transaction == null) {
-    		return "redirect:/error?code=400";
+    		throw new Exceptions("400", "Bad Request");
     	}
     	
         return "redirect:/user/credit-card/details";
     }
 	
 	@GetMapping("/user/credit-card/statement")
-    public String getCreditCardStatements(Model model) {
+    public String getCreditCardStatements(Model model) throws Exceptions {
 		User user = userService.getCurrentUser();
 		if (user == null) {
 			return "redirect:/login";
@@ -423,7 +418,7 @@ public class ExternalUserController {
     }
 	
 	@GetMapping("/user/credit-card/statement/{id}")
-    public String getCreditCardStatements(@PathVariable UUID id, Model model) {
+    public String getCreditCardStatements(@PathVariable UUID id, Model model) throws Exceptions {
 		User user = userService.getCurrentUser();
 		if (user == null) {
 			return "redirect:/login";
@@ -437,7 +432,7 @@ public class ExternalUserController {
 		logger.info("POST request: get statements for credit card");
 		CreditCardStatement statement = creditCardService.getStatementById(cc, id);
 		if (statement == null) {
-			return "redirect:/error?code=400";
+			throw new Exceptions("400", "Bad Request");
 		}
     	model.addAttribute("statement", statement);
     	
