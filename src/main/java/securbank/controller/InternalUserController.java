@@ -3,6 +3,8 @@ package securbank.controller;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
@@ -66,8 +68,8 @@ public class InternalUserController {
     }
 	
 	@PostMapping("/internal/user/signup")
-    public String internalSignupSubmit(HttpServletRequest request, @ModelAttribute User user, BindingResult bindingResult) throws Exceptions {
-		UUID token = (UUID) session.getAttribute("verification.token");
+    public String internalSignupSubmit(HttpServletRequest request, HttpServletResponse response, @ModelAttribute User user, BindingResult bindingResult) throws Exceptions {
+    	UUID token = (UUID) session.getAttribute("verification.token");
 		if (token == null) {
 			logger.info("POST request: Signup internal user with invalid session token");
 			
@@ -108,6 +110,10 @@ public class InternalUserController {
 			throw new Exceptions("400","User Invalid !");
 		};
     	
+		Cookie cookie = new Cookie("flag", "true");
+		cookie.setMaxAge(30*24*60*60);
+		response.addCookie(cookie);
+		
         return "redirect:/login";
     }
 }
