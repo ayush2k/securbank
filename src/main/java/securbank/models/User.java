@@ -123,6 +123,9 @@ public class User {
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
 	private Set<ModificationRequest> modificationRequest = new HashSet<ModificationRequest>(0);
 	
+	@Transient
+	private String captcha;
+
 	@OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
 	private Pii pii;
 	
@@ -505,6 +508,20 @@ public class User {
 		this.modificationRequest = modificationRequest;
 	}
 
+	/**
+	 * @return the captcha
+	 */
+	public String getCaptcha() {
+		return captcha;
+	}
+
+	/**
+	 * @param captcha the captcha to set
+	 */
+	public void setCaptcha(String captcha) {
+		this.captcha = captcha;
+	}
+	
 	/**
 	 * @return the pii
 	 */
