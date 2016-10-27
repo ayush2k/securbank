@@ -3,25 +3,70 @@
 	xmlns:th="http://www.thymeleaf.org"
 	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
 <head>
-<title>Transactions</title>
+<title>Credit Card Statements</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet"
+	th:href="@{/webjars/bootstrap/3.3.6/css/bootstrap.min.css}" />
+<script th:src="@{/webjars/jquery/2.1.4/jquery.min.js}"></script>
+<script th:src="@{/webjars/bootstrap/3.3.6/js/bootstrap.min.js}"></script>
 </head>
 <body>
-	<table>
-		<tr>
-			<td>Date</td>
-			<td>Amount</td>
-			<td>Type</td>
-			<td>Status</td>
-		</tr>
-		<tr th:each="transaction : ${transactions}">
-			<td th:text="${transaction.createdOn}"></td>
-			<td th:text="${transaction.amount}"></td>
-			<td th:text="${transaction.type}"></td>
-			<td th:text="${transaction.approvalStatus}"></td>
-		</tr>
-	</table>
-	
-	<a th:href="@{/user/credit-card/details}">View Credit Card Details</a>
-			
+	<nav class="navbar navbar-default">
+	<div class="container-fluid">
+		<!-- Brand and toggle get grouped for better mobile display -->
+		<div class="navbar-header">
+			<p class="navbar-brand">Cardinals Banking</p>
+		</div>
+		<ul class="nav navbar-nav navbar-right">
+		      <li><a th:href="@{/user/details}">My Dashboard</a></li>
+		      <li><a th:href="@{/logout}">Logout</a></li>
+		    </ul>
+		</div>
+</nav>
+	<div class="container">
+		<h3>User Dashboard</h3>
+		<ul class="nav nav-tabs nav-justified">
+			<li><a th:href="@{/user/details}">My Profile</a></li>
+			<li><a th:href="@{/user/createtransaction}">Transactions</a></li>
+			<li><a th:href="@{/user/transfers}">Pending Transfer Requests</a></li>
+			<li><a th:href="@{/user/request}">View Access Requests</a></li>
+      <li class="active"><a href="#">Credit Card</a></li>
+		</ul>
+	</div>
+
+  <div class="container" style="margin-top:40px;">
+    <ul class="nav nav-pills" style="text-align:center">
+      <li role="presentation" style="float:none;display:inline-block"><a th:href="@{/user/credit-card/details}">Credit Card Details</a></li>
+      <li role="presentation" class="active" style="float:none;display:inline-block"><a href="#">View Transactions</a></li>
+      <li role="presentation" style="float:none;display:inline-block"><a th:href="@{/user/credit-card/transaction/create}">Make a Transaction</a></li>
+      <li role="presentation" style="float:none;display:inline-block"><a th:href="@{/user/credit-card/makepayment}">Make a Payment</a></li>
+      <li role="presentation" style="float:none;display:inline-block"><a th:href="@{/user/credit-card/statement}">View Statements</a></li>
+    </ul>
+  </div>
+
+	<div class="container">
+		<h3>Credit Card Transactions</h3>
+	</div>
+
+	<div class="container">
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th>Date</th>
+					<th>Amount</th>
+					<th>Type</th>
+					<th>Status</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="transaction : ${transactions}">
+					<td th:text="${transaction.createdOn}"></td>
+					<td th:text="${transaction.amount}"></td>
+					<td th:text="${transaction.type}"></td>
+					<td th:text="${transaction.approvalStatus}"></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
 </body>
 </html>

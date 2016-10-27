@@ -3,26 +3,53 @@
 	xmlns:th="http://www.thymeleaf.org"
 	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
 <head>
-<title>Statement</title>
+<title>Credit Card Statements</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet"
+	th:href="@{/webjars/bootstrap/3.3.6/css/bootstrap.min.css}" />
+<script th:src="@{/webjars/jquery/2.1.4/jquery.min.js}"></script>
+<script th:src="@{/webjars/bootstrap/3.3.6/js/bootstrap.min.js}"></script>
 </head>
 <body>
-	<div th:object="${statement}">
-		Start Date: <p th:text="*{startDate}" />
-		End Date: <p th:text="*{endDate}" />
-		Status: <p th:text="*{status}" />
-		<table>
+	<nav class="navbar navbar-default">
+	<div class="container-fluid">
+		<!-- Brand and toggle get grouped for better mobile display -->
+		<div class="navbar-header">
+			<p class="navbar-brand">Cardinals Banking</p>
+		</div>
+		<ul class="nav navbar-nav navbar-right">
+		      <li><a th:href="@{/user/details}">My Dashboard</a></li>
+		      <li><a th:href="@{/logout}">Logout</a></li>
+		    </ul>
+		</div>
+</nav>
+
+<div class="container" th:object="${statement}">
+	<p>Start Date: <span th:text="*{startDate}" /></p>
+	<p>End Date: <span th:text="*{endDate}" /></p>
+	<p>Status: <span th:text="*{status}" /></p>
+	<table class="table table-striped">
+		<thead>
 			<tr>
-				<td>Date</td>
-				<td>Type</td>
-				<td>Amount</td>
+				<th>Date</th>
+				<th>Type</th>
+				<th>Amount</th>
 			</tr>
+		</thead>
+		<tbody>
 			<tr th:each="transaction : *{transactions}">
 				<td th:text="${transaction.createdOn}"></td>
 				<td th:text="${transaction.type}"></td>
 				<td th:text="${transaction.amount}"></td>
 			</tr>
-		</table>
-		<a th:href="@{/user/creditcard/statement/{id}/pdf(id=${statement.statementId})}">View</a>
-	</div>
+			<tr>
+				<td>
+					<a th:href="@{/user/credit-card/statement/{id}/pdf(id=${statement.statementId})}" id="downloadbutton" name="downloadbutton"
+						class="btn btn-primary">Download Statement</a>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
 </body>
 </html>
