@@ -130,8 +130,7 @@ public class CreditCardServiceImpl implements CreditCardService {
 	/*
 	 * Calls this function at 1 AM daily
 	 */
-	//@Scheduled(cron = "0 00 1 * * *")
-	@Scheduled(fixedDelay = 5000)
+	@Scheduled(cron = "0 00 1 * * *")
 	public void interestGeneration() {
 		List<CreditCardStatement> statements = creditCardStatementDao.findByPendingDateAndStatus(LocalDate.now(), "pending");
 		Map<CreditCard, Double> creditCards = new HashMap<CreditCard, Double>();

@@ -2,9 +2,16 @@
  * 
  */
 package securbank.controller;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.UUID;
 
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
@@ -17,17 +24,18 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
+import securbank.exceptions.Exceptions;
 import securbank.models.CreditCard;
 import securbank.models.CreditCardStatement;
-import securbank.exceptions.Exceptions;
 import securbank.models.Transaction;
 import securbank.models.Transfer;
 import securbank.models.User;
 import securbank.models.ViewAuthorization;
-import securbank.services.AccountService;
 import securbank.services.CreditCardService;
 import securbank.services.OtpService;
+import securbank.services.PDFService;
 import securbank.services.TransactionService;
 import securbank.services.TransferService;
 import securbank.services.UserService;
@@ -50,19 +58,19 @@ public class ExternalUserController {
 	@Autowired
 	CreditCardService creditCardService;
 	
-	@Autowired
-	TransactionService transactionService;
-	
 	final static Logger logger = LoggerFactory.getLogger(ExternalUserController.class);
+
+	@Autowired
+	PDFService pdfService;
+	
+	@Autowired
+	private TransactionService transactionService;
 	
 	@Autowired
 	NewTransactionFormValidator transactionFormValidator;
 	
 	@Autowired
 	private TransferService transferService;
-	
-	@Autowired
-	private AccountService accountService;
 	
 	@Autowired
 	NewTransferFormValidator transferFormValidator;
@@ -429,7 +437,7 @@ public class ExternalUserController {
 		}
 		
 		// TODO: adds validation of transaction
-		logger.info("POST request: get statements for credit card");
+		logger.info("GET request: get statements for credit card");
 		CreditCardStatement statement = creditCardService.getStatementById(cc, id);
 		if (statement == null) {
 			throw new Exceptions("400", "Bad Request");
@@ -437,6 +445,42 @@ public class ExternalUserController {
     	model.addAttribute("statement", statement);
     	
         return "external/creditcard_statementdetail";
+	}
+	
+	@GetMapping("/user/credit-card/statement/{id}/pdf")
+    public void getCreditCardStatementPdf(@PathVariable UUID id, HttpServletRequest request, HttpServletResponse response) throws Exceptions {
+		User user = userService.getCurrentUser();
+		if (user == null) {
+			throw new Exceptions("404", "User not found");
+		}
+		CreditCard cc = creditCardService.getCreditCardDetails(user);
+		if (creditCardService.getCreditCardDetails(user) == null) {
+			throw new Exceptions("404", "Credit Card not found");
+		}
+		CreditCardStatement statement = creditCardService.getStatementById(cc, id);
+		if (statement == null) {
+			throw new Exceptions("400", "Bad Request");
+		}
+		
+		final ServletContext servletContext = request.getSession().getServletContext();
+		final File tempDirectory = (File) servletContext.getAttribute("javax.servlet.context.tempdir");
+		final String temperotyFilePath = tempDirectory.getAbsolutePath();
+		
+		String fileName = "statement.pdf";
+		response.setContentType("application/pdf");
+		response.setHeader("Content-disposition", "attachment; filename=" + fileName);
+		
+		try {
+			pdfService.createCreditCardStatementPDF(temperotyFilePath + "\\" + fileName, statement);
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			baos = pdfService.convertPDFToByteArrayOutputStream(temperotyFilePath + "\\" + fileName);
+			OutputStream os = response.getOutputStream();
+			baos.writeTo(os);
+			os.flush();
+		} 
+		catch (Exception e1) {
+			e1.printStackTrace();
+		}		
 	}
 	
 	@GetMapping("/user/transfer/{id}")
@@ -531,4 +575,29 @@ public class ExternalUserController {
 		
         return "redirect:/user/request?successAction=true";
     }
+	
+	@RequestMapping("/user/downloadPDF")
+	public void downloadPDF(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+		final ServletContext servletContext = request.getSession().getServletContext();
+		final File tempDirectory = (File) servletContext.getAttribute("javax.servlet.context.tempdir");
+		final String temperotyFilePath = tempDirectory.getAbsolutePath();
+		
+		User user = userService.getCurrentUser();
+
+		String fileName = "account_statement.pdf";
+		response.setContentType("application/pdf");
+		response.setHeader("Content-disposition", "attachment; filename=" + fileName);
+
+		try {
+			pdfService.createStatementPDF(temperotyFilePath + "\\" + fileName, user);
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			baos = pdfService.convertPDFToByteArrayOutputStream(temperotyFilePath + "\\" + fileName);
+			OutputStream os = response.getOutputStream();
+			baos.writeTo(os);
+			os.flush();
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}		
+	}
 }
