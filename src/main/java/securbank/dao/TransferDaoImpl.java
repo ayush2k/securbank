@@ -93,4 +93,13 @@ public class TransferDaoImpl extends BaseDaoImpl<Transfer, UUID> implements Tran
 				.setParameter("user", user)
 				.getResultList();
 	}
+
+	@Override
+	public List<Transfer> findNonCriticalByApprovalStatus(String approvalStatus) {
+		return this.entityManager.createQuery("SELECT transfer from Transfer transfer"
+					+ " where transfer.status = :status AND transfer.criticalStatus = :critical", Transfer.class)
+					.setParameter("status", approvalStatus)
+					.setParameter("critical", false)
+					.getResultList();
+	}
 }

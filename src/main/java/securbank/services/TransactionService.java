@@ -35,4 +35,5 @@ public interface TransactionService {
 	public Transaction createInternalTransationByType(Transaction transaction, String type);
 	public Transaction createCardPaymentTransaction(Double amount, User user);
 	public Transaction initiateCreditCardTransaction(Transaction transaction);
+	public List<Transaction> getNonCriticalTransactionsByStatus(String approvalStatus);
 }

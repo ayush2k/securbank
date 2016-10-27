@@ -26,4 +26,5 @@ public interface TransactionDao extends BaseDao<Transaction, UUID>{
 	public Transaction findPendingTransactionByAccount(Long accountNumber);
 	public List<Transaction> findByAccountAndDateRange(Account account, LocalDateTime start, LocalDateTime end);
 	public Double findSumByAccountAndDateRange(Account account, LocalDateTime start, LocalDateTime end);
+	public List<Transaction> findNonCriticalByApprovalStatus(String status);
 }
