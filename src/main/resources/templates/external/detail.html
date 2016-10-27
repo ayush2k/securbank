@@ -75,6 +75,14 @@
 					<td>Role</td>
 					<td th:text="${user.role}"></td>
 				</tr>
+				<tr th:each="account : ${user.accounts}" th:if="${account.type=='checking'}">
+					<td>Account #</td>
+					<td th:text="${account.accountNumber}"></td>
+				</tr>
+				<tr th:each="account : ${user.accounts}" th:if="${account.type=='checking'}">
+					<td>Balance</td>
+					<td th:text="${account.balance}"></td>
+				</tr>
 				<tr>
 					<td>
 						<a th:href="@{/user/edit}" id="editbutton" name="editbutton"
