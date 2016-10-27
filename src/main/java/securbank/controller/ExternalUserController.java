@@ -108,6 +108,11 @@ public class ExternalUserController {
         return "external/detail";
     }
 	
+	@GetMapping("/user")
+	public String currentEmployee(Model model) throws Exceptions {
+		return "redirect:/user/details";
+	}
+	
 	@GetMapping("/user/createtransaction")
 	public String newTransactionForm(Model model){
 		model.addAttribute("transaction", new Transaction());

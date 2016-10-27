@@ -74,6 +74,11 @@ public class AdminController {
 		return "admin/detail";
 	}
 
+	@GetMapping("/admin")
+	public String currentAdmin(Model model) throws Exceptions {
+		return "redirect:/admin/details";
+	}
+
 	@GetMapping("/admin/edit")
 	public String editUser(Model model) throws Exceptions {
 		User user = userService.getCurrentUser();
