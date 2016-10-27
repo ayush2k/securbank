@@ -110,6 +110,11 @@ public class MerchantController {
         return "merchant/detail";
     }
 	
+	@GetMapping("/merchant")
+	public String currentMerchant(Model model) throws Exceptions {
+		return "redirect:/merchant/details";
+	}
+	
 	@GetMapping("/merchant/createtransaction")
 	public String newTransactionForm(Model model){
 		model.addAttribute("transaction", new Transaction());
