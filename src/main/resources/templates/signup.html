@@ -38,7 +38,7 @@
 				<div class="form-group">
 					<label class="col-md-4 control-label" for="textinput">Password</label>
 					<div class="col-md-4">
-						<input id="textinput" name="textinput" type="text" placeholder=""
+						<input id="textinput" name="textinput" type="password" placeholder=""
 							class="form-control input-md" required="" th:field="*{password}" />
 						<div class="alert alert-danger"
 							th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
@@ -50,7 +50,7 @@
 					<label class="col-md-4 control-label" for="textinput">Confirm
 						Password</label>
 					<div class="col-md-4">
-						<input id="textinput" name="textinput" type="text" placeholder=""
+						<input id="textinput" name="textinput" type="password" placeholder=""
 							class="form-control input-md" required=""
 							th:field="*{confirmPassword}" />
 					</div>
