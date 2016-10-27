@@ -145,10 +145,10 @@ public class CommonController {
 		}
 		if (userService.verifyNewUser(user) == false) {
 			logger.info("GET request: verification failed of new external user");
-			//return "redirect:/error?code=400";
+
 			throw new Exceptions("400"," ");
 		}
-		
+		verificationService.removeVerification(id);
 		logger.info("GET request: verification of new external user");
 
 		Cookie cookie = new Cookie("flag", "true");
