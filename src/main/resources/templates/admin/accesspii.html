@@ -52,8 +52,8 @@
 					Account</a></li>
 			<li><a th:href="@{/admin/details}">My Profile</a></li>
 			<li><a th:href="@{/admin/user/request}">New Internal User Requests</a></li>
-			<li><a th:href="@{/admin/syslogs}">System Logs</a></li>
 			<li class = "active"><a href="#"> Access PII </a></li>
+			<li><a th:href="@{/admin/syslogs}">System Logs</a></li>
 		</ul>
 	</div>
 	<div class="container">
@@ -66,13 +66,15 @@
 				<thead>
 					<tr>
 						<th>Username</th>
+						<th>Role</th>
 						<th>PII</th>
 					</tr>
 				</thead>
 				<tbody class="searchable">
 					<tr th:each="user : ${users}">
 						<td th:text="${user.username}"></td>
-						<td th:text="${user.pii.ssn}"></td>
+						<td th:text="${user.role}"></td>
+						<td th:if="${user.pii != null}" th:text="${user.pii.ssn}"></td>
 					</tr>
 				</tbody>
 			</table>
