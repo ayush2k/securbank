@@ -6,10 +6,7 @@ package securbank.controller;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.UUID;
@@ -36,7 +33,6 @@ import securbank.models.Transaction;
 import securbank.models.Transfer;
 import securbank.models.User;
 import securbank.models.ViewAuthorization;
-import securbank.services.AccountService;
 import securbank.services.OtpService;
 import securbank.services.PDFService;
 import securbank.services.TransactionService;
@@ -70,9 +66,6 @@ public class MerchantController {
 	
 	@Autowired
 	private TransferService transferService;
-	
-	@Autowired
-	private AccountService accountService;
 	
 	@Autowired
 	NewTransferFormValidator transferFormValidator;
