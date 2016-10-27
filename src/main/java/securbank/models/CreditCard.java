@@ -1,113 +1,163 @@
 package securbank.models;
 
-import java.awt.geom.Arc2D.Double;
+import org.joda.time.LocalDateTime;
+
+import org.joda.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.GenericGenerator;
-import org.joda.time.LocalDateTime;
 
 /**
  * @author Shivani Jhunjhunwala
  *
  */
 @Entity
-@Table(name = "CreditCard")
+@Table(name = "creditCard")
 public class CreditCard {
-	
-	/**
-	 * @param ccID
-	 * @param accountID
-	 * @param limit
-	 * @param used
-	 * @param activeBalance
-	 * @param active
-	 * @param createdOn
-	 */
-	public CreditCard(UUID ccID, UUID accountID, Double maxLimit, Double used, Double activeBalance, Boolean active,
-			LocalDateTime createdOn) {
-		super();
-		this.ccID = ccID;
-		this.accountID = accountID;
-		this.maxLimit = maxLimit;
-		this.used = used;
-		this.activeBalance = activeBalance;
-		this.active = active;
-		this.createdOn = createdOn;
-	}
-
 	@Id
 	@GeneratedValue(generator = "uuid2")
 	@GenericGenerator(name = "uuid2", strategy = "uuid2")
 	@NotNull
-	@Column(name = "ccID", unique = true, nullable = false, columnDefinition = "BINARY(16)")
-	private UUID ccID;
+	@Column(name = "ccId", unique = true, nullable = false, columnDefinition = "BINARY(16)")
+	private UUID ccId;
+
+	/**
+	 * Multiple credit cards may map to the same account, but only one of those
+	 * credit cards may be active at any time.
+	 */
+	@ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, optional = false)
+	@JoinColumn(name = "accountNumber")
+	private Account account;
 
 	@NotNull
-	@Column(name = "accountID", unique = true, nullable = false, columnDefinition = "BINARY(16)")
-	private UUID accountID;
+	@Column(name = "apr", nullable = false)
+	private Double apr;
 
 	@NotNull
-	@Column(name = "maxLimit", nullable = false)
+	@Column(name = "max_limit", nullable = false)
 	private Double maxLimit;
-
-	@NotNull
-	@Column(name = "used", nullable = false)
-	private Double used;
-
-	@NotNull
-	@Column(name = "activeBalance", nullable = false)
-	private Double activeBalance;
 
 	@NotNull
 	@Column(name = "active", nullable = false, columnDefinition = "BIT")
 	private Boolean active;
 
 	@NotNull
-	@Column(name = "createdOn", nullable = false, updatable = false)
+	@Column(name = "created_on", nullable = false, updatable = false)
 	private LocalDateTime createdOn;
 
+	@NotNull 
+	private LocalDate statementGeneration;
+	
+	@Transient
+	private Double balance;
+	
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "cc")
+	private Set<CreditCardStatement> statements = new HashSet<CreditCardStatement>(0);
+	
+	public CreditCard() {
+		
+	}
+	
 	/**
-	 * @return the ccID
+	 * @param ccId
+	 * @param account
+	 * @param apr
+	 * @param maxLimit
+	 * @param active
+	 * @param createdOn
+	 * @param statementGeneration
+	 * @param balance
+	 * @param statements
 	 */
-	public UUID getCcID() {
-		return ccID;
+	public CreditCard(UUID ccId, Account account, Double apr, Double maxLimit, Boolean active, LocalDateTime createdOn,
+			LocalDate statementGeneration, Double balance, Set<CreditCardStatement> statements) {
+		super();
+		this.ccId = ccId;
+		this.account = account;
+		this.apr = apr;
+		this.maxLimit = maxLimit;
+		this.active = active;
+		this.createdOn = createdOn;
+		this.statementGeneration = statementGeneration;
+		this.balance = balance;
+		this.statements = statements;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "CreditCard [ccId=" + ccId + ", account=" + account + ", apr=" + apr + ", maxLimit=" + maxLimit
+				+ ", active=" + active + ", createdOn=" + createdOn + ", statementGeneration=" + statementGeneration
+				+ ", balance=" + balance + ", statements=" + statements + "]";
 	}
 
 	/**
-	 * @param ccID the ccID to set
+	 * @return the ccId
 	 */
-	public void setCcID(UUID ccID) {
-		this.ccID = ccID;
+	public UUID getCcId() {
+		return ccId;
 	}
 
 	/**
-	 * @return the accountID
+	 * @param ccId the ccId to set
 	 */
-	public UUID getAccountID() {
-		return accountID;
+	public void setCcId(UUID ccId) {
+		this.ccId = ccId;
 	}
 
 	/**
-	 * @param accountID the accountID to set
+	 * @return the account
 	 */
-	public void setAccountID(UUID accountID) {
-		this.accountID = accountID;
+	public Account getAccount() {
+		return account;
 	}
 
 	/**
-	 * @return the limit
+	 * @param account the account to set
+	 */
+	public void setAccount(Account account) {
+		this.account = account;
+	}
+
+	/**
+	 * @return the apr
+	 */
+	public Double getApr() {
+		return apr;
+	}
+
+	/**
+	 * @param apr the apr to set
+	 */
+	public void setApr(Double apr) {
+		this.apr = apr;
+	}
+
+	/**
+	 * @return the maxLimit
 	 */
 	public Double getMaxLimit() {
 		return maxLimit;
 	}
-	
+
 	/**
 	 * @param maxLimit the maxLimit to set
 	 */
@@ -116,40 +166,12 @@ public class CreditCard {
 	}
 
 	/**
-	 * @return the used
-	 */
-	public Double getUsed() {
-		return used;
-	}
-
-	/**
-	 * @param used the used to set
-	 */
-	public void setUsed(Double used) {
-		this.used = used;
-	}
-
-	/**
-	 * @return the activeBalance
-	 */
-	public Double getActiveBalance() {
-		return activeBalance;
-	}
-
-	/**
-	 * @param activeBalance the activeBalance to set
-	 */
-	public void setActiveBalance(Double activeBalance) {
-		this.activeBalance = activeBalance;
-	}
-
-	/**
-	 * @return the active status
+	 * @return the active
 	 */
 	public Boolean getActive() {
 		return active;
 	}
-	
+
 	/**
 	 * @param active the active to set
 	 */
@@ -158,7 +180,7 @@ public class CreditCard {
 	}
 
 	/**
-	 * @return the createdOn Date
+	 * @return the createdOn
 	 */
 	public LocalDateTime getCreatedOn() {
 		return createdOn;
@@ -171,10 +193,56 @@ public class CreditCard {
 		this.createdOn = createdOn;
 	}
 
-	@Override
-	public String toString() {
-		return "CreditCard [ccID=" + ccID + ", accountID=" + accountID + ", maxLimit=" + maxLimit + ", used=" + used
-				+ ", activeBalance=" + activeBalance + ", active=" + active + ", createdOn=" + createdOn + "]";
+	/**
+	 * @return the statementGeneration
+	 */
+	public LocalDate getStatementGeneration() {
+		return statementGeneration;
 	}
 
+	/**
+	 * @param statementGeneration the statementGeneration to set
+	 */
+	public void setStatementGeneration(LocalDate statementGeneration) {
+		this.statementGeneration = statementGeneration;
+	}
+
+	/**
+	 * @return the balance
+	 */
+	public Double getBalance() {
+		return balance;
+	}
+
+	/**
+	 * @param balance the balance to set
+	 */
+	public void setBalance(Double balance) {
+		this.balance = balance;
+	}
+
+	/**
+	 * @return the statements
+	 */
+	public Set<CreditCardStatement> getStatements() {
+		return statements;
+	}
+
+	/**
+	 * @param statements the statements to set
+	 */
+	public void setStatements(Set<CreditCardStatement> statements) {
+		this.statements = statements;
+	}
+
+	
+	/**
+	 * Sets the created date/time to the current timestamp immediately before
+	 * the credit card is inserted.
+	 */
+	@PrePersist
+	protected void onCreate() {
+		this.createdOn = LocalDateTime.now();
+		this.statementGeneration = LocalDate.now().withYear(2000);
+	}
 }

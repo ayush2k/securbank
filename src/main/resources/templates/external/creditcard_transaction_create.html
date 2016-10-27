@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+  <title>Create New Credit Card</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel="stylesheet" th:href="@{/webjars/bootstrap/3.3.6/css/bootstrap.min.css}"/>
+  <script th:src="@{/webjars/jquery/2.1.4/jquery.min.js}"></script>
+  <script th:src="@{/webjars/bootstrap/3.3.6/js/bootstrap.min.js}"></script>
+</head>
+<body>
+
+  <div class="alert alert-danger" th:if="${param.error}"></div>
+
+  <div class="container">
+    <form class="form-horizontal" action="#" th:action="@{/user/credit-card/transaction/create}" th:object="${transaction}" method="post">
+      <fieldset>
+
+        <!-- Form Name -->
+        <legend>Transaction</legend>
+		<div class="form-group">
+			<label class="col-md-4 control-label" for="textinput">Amount</label>
+			<div class="col-md-4">
+				<input id="textinput" name="textinput" type="text" placeholder=""
+					class="form-control input-md" required="" th:field="*{amount}" />
+				<div class="alert alert-danger"
+					th:if="${#fields.hasErrors('amount')}" th:errors="*{amount}"></div>
+			</div>
+		</div>
+        <!-- Button -->
+        <div class="form-group">
+          <label class="col-md-4 control-label" for="submitbutton"></label>
+          <div class="col-md-8">
+            <button id="submitbutton" name="submitbutton" type="submit" class="btn btn-primary">Submit</button>
+            <button id="resetbutton" name="resetbutton" type="reset" class="btn btn-default">Reset</button>
+          </div>
+        </div>
+
+      </fieldset>
+    </form>
+  </div>
+
+</body>
+</html>

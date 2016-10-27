@@ -1,6 +1,7 @@
 package securbank.models;
 
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -13,6 +14,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
@@ -29,7 +31,6 @@ public class Account {
 	
 	/** Account number is unique. */
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long accountNumber;
 	
 	/** multiple account can be associated with an user	 */
@@ -52,109 +53,139 @@ public class Account {
 	@Column(name = "active", columnDefinition = "BIT")
 	private Boolean active;
 	
-	/**
-	 * Changes related to transactions made my Mitikaa on 10/10
-	 */
+	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "account")
+	private Set<CreditCard> creditCards = new HashSet<CreditCard>(0);
+	
 	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "account")
 	private Set<Transaction> transactions = new HashSet<Transaction>(0);
 	
+	private static final Random generator = new Random();
+	
+	public Account() {
+		
+	}
+
 	/**
-	 * 
 	 * @param accountNumber
 	 * @param user
 	 * @param balance
-	 * @param accountType
-	 * @param transactions
+	 * @param type
 	 * @param createdOn
 	 * @param active
+	 * @param creditCards
+	 * @param transactions
 	 */
-	public Account(Long accountNumber, User user, double balance, String type, Set<Transaction> transactions, 
-			LocalDateTime createdOn, Boolean active){
+	public Account(Long accountNumber, User user, Double balance, String type, LocalDateTime createdOn, Boolean active,
+			Set<CreditCard> creditCards, Set<Transaction> transactions) {
 		super();
 		this.accountNumber = accountNumber;
 		this.user = user;
 		this.balance = balance;
 		this.type = type;
-		this.transactions = transactions;
 		this.createdOn = createdOn;
-		this.active = active;	
-		
+		this.active = active;
+		this.creditCards = creditCards;
+		this.transactions = transactions;
 	}
-	
-	public Account() {
-		
-	}
-	
+
 	/**
-	 * 
-	 * @return accountNumber
+	 * @return the accountNumber
 	 */
 	public Long getAccountNumber() {
 		return accountNumber;
 	}
-	
+
 	/**
-	 * 
-	 * @param accountNumber sets accountNumber
+	 * @param accountNumber the accountNumber to set
 	 */
 	public void setAccountNumber(Long accountNumber) {
 		this.accountNumber = accountNumber;
 	}
-	
+
 	/**
-	 * 
-	 * @return user
+	 * @return the user
 	 */
 	public User getUser() {
 		return user;
 	}
-	
+
 	/**
-	 * 
-	 * @param user sets user
+	 * @param user the user to set
 	 */
 	public void setUser(User user) {
 		this.user = user;
 	}
 
 	/**
-	 * 
-	 * @return balance
+	 * @return the balance
 	 */
 	public Double getBalance() {
 		return balance;
 	}
-	
+
 	/**
-	 * 
-	 * @param balance sets balance
+	 * @param balance the balance to set
 	 */
 	public void setBalance(Double balance) {
 		this.balance = balance;
 	}
 
 	/**
-	 * 
-	 * @return type
+	 * @return the type
 	 */
 	public String getType() {
 		return type;
 	}
-	
+
 	/**
-	 * 
-	 * @param type sets type
+	 * @param type the type to set
 	 */
 	public void setType(String type) {
 		this.type = type;
 	}
-		
-	
+
 	/**
-	 * added setters and getter for transactions 
-	 * -Mitikaa
+	 * @return the createdOn
 	 */
-	
+	public LocalDateTime getCreatedOn() {
+		return createdOn;
+	}
+
+	/**
+	 * @param createdOn the createdOn to set
+	 */
+	public void setCreatedOn(LocalDateTime createdOn) {
+		this.createdOn = createdOn;
+	}
+
+	/**
+	 * @return the active
+	 */
+	public Boolean getActive() {
+		return active;
+	}
+
+	/**
+	 * @param active the active to set
+	 */
+	public void setActive(Boolean active) {
+		this.active = active;
+	}
+
+	/**
+	 * @return the creditCards
+	 */
+	public Set<CreditCard> getCreditCards() {
+		return creditCards;
+	}
+
+	/**
+	 * @param creditCards the creditCards to set
+	 */
+	public void setCreditCards(Set<CreditCard> creditCards) {
+		this.creditCards = creditCards;
+	}
+
 	/**
 	 * @return the transactions
 	 */
@@ -169,46 +200,19 @@ public class Account {
 		this.transactions = transactions;
 	}
 
-	/**
-	 * 
-	 * @return createdOn time created on
-	 */
-	public LocalDateTime getCreatedOn() {
-		return createdOn;
-	}
-
-	/**
-	 * 
-	 * @param createdOn sets time created on 
-	 */
-	public void setCreatedOn(LocalDateTime createdOn) {
-		this.createdOn = createdOn;
-	}
-		
-	/**
-	 * 
-	 * @return active if the account is active
-	 */
-	public Boolean getActive() {
-		return active;
-	}
-
-	/**
-	 * 
-	 * @param active sets account active
-	 */
-	public void setActive(Boolean active) {
-		this.active = active;
-	}
-
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
 		return "Account [accountNumber=" + accountNumber + ", user=" + user + ", balance=" + balance + ", type=" + type
-				+ ", createdOn=" + createdOn + ", active=" + active + ", transactions=" + transactions + "]";
+				+ ", createdOn=" + createdOn + ", active=" + active + ", creditCards=" + creditCards + ", transactions="
+				+ transactions + "]";
 	}
-	
+
+	@PrePersist
+	private void onCreate() {
+		this.accountNumber = new Long(generator.nextInt(900000000) + 100000000);
+	}
 	
 }

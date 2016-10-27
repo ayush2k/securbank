@@ -1,6 +1,7 @@
 package securbank.services;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import javax.transaction.Transactional;
@@ -21,15 +22,9 @@ import securbank.models.Transaction;
 import securbank.models.Transfer;
 import securbank.models.User;
 
-/**
- * @author Mitikaa
- *
- */
-
 @Service("transactionService")
 @Transactional
-public class TransactionServiceImpl implements TransactionService{
-
+public class TransactionServiceImpl implements TransactionService {
 	@Autowired
 	private TransactionDao transactionDao;
 	
@@ -54,7 +49,12 @@ public class TransactionServiceImpl implements TransactionService{
 	private SimpleMailMessage message;
 	
 	final static Logger logger = LoggerFactory.getLogger(TransactionServiceImpl.class);
-
+ 	
+	@Override
+	public List<Transaction> getTransactionsByAccountAndDateTimeRange(Account account, LocalDateTime start, LocalDateTime end) {
+		return transactionDao.findByAccountAndDateRange(account, start, end);
+	}
+	
 	/**
      * Initiates new debit transaction
      * 
@@ -107,6 +107,86 @@ public class TransactionServiceImpl implements TransactionService{
 		return transaction;
 	}
 
+	public List<Transaction> getTransactionsByAccount(Account account) {
+		return transactionDao.findByAccount(account);
+	}
+	
+	public Double getSumByAccountAndDateRange(Account account, LocalDateTime start, LocalDateTime end) {
+		return transactionDao.findSumByAccountAndDateRange(account, start, end);
+	}
+	
+	@Override
+	public Transaction initiateCreditCardTransaction(Transaction transaction) {
+		logger.info("Initiating new credit request");
+		
+		Account account = transaction.getAccount();
+		Double pendingAmount = 0.0;
+		
+		//in Transaction model
+		for(Transaction trans: transactionDao.findPendingByAccountAndType(account, "DEBIT")){
+			pendingAmount += trans.getAmount();
+		}	
+		
+		if(pendingAmount + transaction.getAmount() > transaction.getAccount().getBalance()){
+			logger.info("Invalid Debit transaction: amount requested is more than permitted");
+			
+			return null;
+		}
+		
+		transaction.setApprovalStatus("Pending");
+		if (transaction.getAmount() > Double.parseDouble(env.getProperty("critical.amount"))) {
+			transaction.setCriticalStatus(true);
+		}
+		
+		transaction.setType("DEBIT");
+		transaction.setCreatedOn(LocalDateTime.now());
+		transaction.setActive(true);
+		transaction = transactionDao.save(transaction);
+		logger.info("After TransactionDao save");
+
+		//send email to user
+		User user = transaction.getAccount().getUser();
+		message = new SimpleMailMessage();
+		message.setText(env.getProperty("external.user.transaction.card.body"));
+		message.setSubject(env.getProperty("external.user.transaction.subject"));
+		message.setTo(user.getEmail());
+		emailService.sendEmail(message);
+		
+		return transaction;
+	}
+
+	public Transaction createInternalTransationByType(Transaction transaction, String type) {
+		logger.info("Initiating new fees");
+ 		
+ 		logger.info("After TransactionDao save");
+
+ 		Account account = transaction.getAccount();
+ 		User current = account.getUser();
+		
+ 		Double oldBalance = account.getBalance();
+		Double newBalance = 0.0;
+		newBalance = oldBalance - transaction.getAmount();
+		account.setBalance(newBalance);
+		account = accountDao.update(account);
+ 		transaction.setApprovalStatus("Approved");
+ 		transaction.setType(type);
+ 		transaction.setCreatedOn(LocalDateTime.now());
+ 		transaction.setActive(true);
+		transaction.setOldBalance(oldBalance);
+		transaction = transactionDao.update(transaction);
+		transaction.setNewBalance(newBalance);
+ 		transaction = transactionDao.save(transaction);
+		
+ 		//send email to user
+ 		message = new SimpleMailMessage();
+ 		message.setText(env.getProperty("external.user.transaction.interest.body"));
+ 		message.setSubject(env.getProperty("external.user.transaction.subject"));
+ 		message.setTo(current.getEmail());
+ 		emailService.sendEmail(message);
+ 		
+ 		return transaction;
+	}
+	
 	/**
      * Initiates new credit transaction
      * 
@@ -152,6 +232,26 @@ public class TransactionServiceImpl implements TransactionService{
 		message.setTo(user.getEmail());
 		emailService.sendEmail(message);
 		
+		return transaction;
+	}
+
+	public Transaction createCardPaymentTransaction(Double amount, User user) {
+		Set<Account> accounts = user.getAccounts();
+		Account account = null;
+		for (Account acc : accounts) {
+			if (acc.getType().equalsIgnoreCase("checking")) {
+				account = acc;
+			}
+		}
+		
+		if (account == null) {
+			return null;
+		}
+		
+		Transaction transaction = new Transaction();
+		transaction.setAmount(amount);
+		transaction.setApprovalStatus("Approved");
+
 		return transaction;
 	}
 
@@ -209,6 +309,7 @@ public class TransactionServiceImpl implements TransactionService{
 		transaction.setActive(true);
 		transaction = transactionDao.update(transaction);
 		account = accountDao.update(account);
+		
 		return transaction;
 	}
 
@@ -452,6 +553,4 @@ public class TransactionServiceImpl implements TransactionService{
 		}
 		return transactionDao.findNonCriticalByApprovalStatus(approvalStatus);
 	}
-
-
 }

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+<title>Statement</title>
+</head>
+<body>
+	<div th:object="${statement}">
+		Start Date: <p th:text="*{startDate}" />
+		End Date: <p th:text="*{endDate}" />
+		Status: <p th:text="*{status}" />
+		<table>
+			<tr>
+				<td>Date</td>
+				<td>Type</td>
+				<td>Amount</td>
+			</tr>
+			<tr th:each="transaction : *{transactions}">
+				<td th:text="${transaction.createdOn}"></td>
+				<td th:text="${transaction.type}"></td>
+				<td th:text="${transaction.amount}"></td>
+			</tr>
+		</table>
+		<a th:href="@{/user/creditcard/statement/{id}/pdf(id=${statement.statementId})}">Download</a>
+	</div>
+</body>
+</html>
