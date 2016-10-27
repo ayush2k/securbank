@@ -49,7 +49,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         .logout()
             .permitAll()
 		.and()
-			.exceptionHandling().accessDeniedPage("/error/access-denied");
+			.exceptionHandling().accessDeniedPage("/error/access-denied")
+		.and()
+		.x509()
+		.subjectPrincipalRegex(".*?\\s(\\w+),");
 
     }
 
