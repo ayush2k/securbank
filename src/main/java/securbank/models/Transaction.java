@@ -63,7 +63,7 @@ public class Transaction {
 	@Column(name = "criticalStatus", unique = false, nullable = false, columnDefinition = "BIT")
 	private boolean criticalStatus;
 	
-	@ManyToOne( optional = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@ManyToOne(optional = true, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@JoinColumn(name = "transferId", nullable = true)
 	private Transfer transfer;
 	
@@ -332,6 +332,4 @@ public class Transaction {
 				+ createdOn + ", modifiedOn=" + modifiedOn + ", modifiedBy=" + modifiedBy + ", active=" + active
 				+ ", otp=" + otp + "]";
 	}
-
-	
 }

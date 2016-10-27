@@ -1,9 +1,11 @@
 package securbank.dao;
 
+import java.util.List;
+import java.util.UUID;
+
+import org.joda.time.LocalDateTime;
 import securbank.models.Account;
 import securbank.models.Transaction;
-
-import java.util.*;
 
 /**
  * @author Mitikaa Sama
@@ -13,6 +15,7 @@ import java.util.*;
 
 public interface TransactionDao extends BaseDao<Transaction, UUID>{
 	public List<Transaction> findAll();
+	public List<Transaction> findByAccount(Account account);
 	public List<Transaction> findByAccount(String accountNumber);
 	public List<Transaction> findByAccountAndType(Long accountNumber, String type);
 	public List<Transaction> findByCriticalStatus(Boolean criticalStatus);
@@ -21,5 +24,7 @@ public interface TransactionDao extends BaseDao<Transaction, UUID>{
 	public List<Transaction> findPendingByCriticalStatus(Boolean criticalStatus);
 	public List<Transaction> findPendingByAccount(Long accountNumber);
 	public Transaction findPendingTransactionByAccount(Long accountNumber);
+	public List<Transaction> findByAccountAndDateRange(Account account, LocalDateTime start, LocalDateTime end);
+	public Double findSumByAccountAndDateRange(Account account, LocalDateTime start, LocalDateTime end);
 	public List<Transaction> findNonCriticalByApprovalStatus(String status);
 }
