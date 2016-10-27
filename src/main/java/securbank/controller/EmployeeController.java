@@ -74,6 +74,11 @@ public class EmployeeController {
         return "employee/detail";
     }
 	
+	@GetMapping("/employee")
+	public String currentEmployee(Model model) throws Exceptions {
+		return "redirect:/employee/details";
+	}
+
 	@GetMapping("/employee/edit")
     public String editUser(Model model) throws Exceptions {
 		User user = userService.getCurrentUser();
