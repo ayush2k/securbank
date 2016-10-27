@@ -53,7 +53,6 @@ public class InternalUserController {
 		if (newUserRequest == null) {
 			logger.info("GET request: Invalid verfication for new user");
 			
-			//return "redirect/error?code=400&path=no-request";
 			throw new Exceptions("400","No Request !");
 		}
 		

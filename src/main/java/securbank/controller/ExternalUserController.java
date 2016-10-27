@@ -69,9 +69,6 @@ public class ExternalUserController {
 	private TransferService transferService;
 	
 	@Autowired
-	private AccountService accountService;
-	
-	@Autowired
 	NewTransferFormValidator transferFormValidator;
 	
 	@Autowired
