@@ -257,7 +257,7 @@ public class EmployeeController {
 	
 	@GetMapping("/employee/user")
     public String getUsers(Model model) throws Exceptions {
-		List<User> users = userService.getUsersByType("external");
+		List<User> users = viewAuthorizationService.getAllAuthorization(userService.getCurrentUser());
 		if (users == null) {
 			//return "redirect:/error?code=500";
 			throw new Exceptions("500"," ");
