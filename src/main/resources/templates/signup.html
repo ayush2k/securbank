@@ -38,7 +38,7 @@
 				<div class="form-group">
 					<label class="col-md-4 control-label" for="textinput">Password</label>
 					<div class="col-md-4">
-						<input id="textinput" name="textinput" type="text" placeholder=""
+						<input id="textinput" name="textinput" type="password" placeholder=""
 							class="form-control input-md" required="" th:field="*{password}" />
 						<div class="alert alert-danger"
 							th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
@@ -50,7 +50,7 @@
 					<label class="col-md-4 control-label" for="textinput">Confirm
 						Password</label>
 					<div class="col-md-4">
-						<input id="textinput" name="textinput" type="text" placeholder=""
+						<input id="textinput" name="textinput" type="password" placeholder=""
 							class="form-control input-md" required=""
 							th:field="*{confirmPassword}" />
 					</div>
@@ -125,17 +125,6 @@
 							th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></div>
 					</div>
 				</div>
-				
-				<!-- Text input-->
-				<div class="form-group">
-					<label class="col-md-4 control-label" for="textinput">Social Security Number</label>
-					<div class="col-md-4">
-						<input id="textinput" name="textinput" type="text" placeholder=""
-							class="form-control input-md" required="" th:field="*{pii.ssn}" />
-						<div class="alert alert-danger"
-							th:if="${#fields.hasErrors('pii.ssn')}" th:errors="*{pii.ssn}"></div>
-					</div>
-				</div>
 
 				<!-- Text input-->
 				<div class="form-group">
@@ -188,10 +177,25 @@
 							th:if="${#fields.hasErrors('zip')}" th:errors="*{zip}"></div>
 					</div>
 				</div>
+
+				<!-- Text input-->
 				<div class="form-group">
-					<div class="g-recaptcha" data-sitekey="6LeGwQkUAAAAACWwVVeYR-8roDlrQvDbFMYQ7J2x"></div>
+					<label class="col-md-4 control-label" for="textinput">SSN</label>
+					<div class="col-md-4">
+						<input id="textinput" name="textinput" type="text" placeholder=""
+							class="form-control input-md" th:field="*{pii.ssn}" />
+						<div class="alert alert-danger"
+							th:if="${#fields.hasErrors('pii.ssn')}" th:errors="*{pii.ssn}"></div>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label class="col-md-4 control-label" for="captcha"></label>
+					<div class="col-md-4">
+					<div id="captcha" name="captcha" class="g-recaptcha" data-sitekey="6LeGwQkUAAAAACWwVVeYR-8roDlrQvDbFMYQ7J2x"></div>
 					<div class="alert alert-danger"
 							th:if="${#fields.hasErrors('captcha')}" th:errors="*{captcha}"></div>
+						</div>
 				</div>
 
 				<!-- Button -->
@@ -204,7 +208,7 @@
 							class="btn btn-default">Reset</button>
 					</div>
 				</div>
-				
+
 			</fieldset>
 		</form>
 	</div>

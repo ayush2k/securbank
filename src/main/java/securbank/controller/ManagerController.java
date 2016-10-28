@@ -85,6 +85,11 @@ public class ManagerController {
         return "manager/detail";
     }
 	
+	@GetMapping("/manager")
+	public String currentManager(Model model) throws Exceptions {
+		return "redirect:/manager/details";
+	}
+
 	@GetMapping("/manager/edit")
     public String editUser(Model model) throws Exceptions {
 		User user = userService.getCurrentUser();

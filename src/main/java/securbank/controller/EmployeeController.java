@@ -74,6 +74,11 @@ public class EmployeeController {
         return "employee/detail";
     }
 	
+	@GetMapping("/employee")
+	public String currentEmployee(Model model) throws Exceptions {
+		return "redirect:/employee/details";
+	}
+
 	@GetMapping("/employee/edit")
     public String editUser(Model model) throws Exceptions {
 		User user = userService.getCurrentUser();
@@ -252,7 +257,7 @@ public class EmployeeController {
 	
 	@GetMapping("/employee/user")
     public String getUsers(Model model) throws Exceptions {
-		List<User> users = userService.getUsersByType("external");
+		List<User> users = viewAuthorizationService.getAllAuthorization(userService.getCurrentUser());
 		if (users == null) {
 			//return "redirect:/error?code=500";
 			throw new Exceptions("500"," ");
