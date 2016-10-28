@@ -17,19 +17,17 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.mysql.fabric.xmlrpc.base.Array;
-
 import securbank.dao.ModificationRequestDao;
 import securbank.dao.NewUserRequestDao;
 import securbank.dao.UserDao;
 import securbank.models.Account;
 import securbank.models.ChangePasswordRequest;
+import securbank.models.LoginAttempt;
 import securbank.models.ModificationRequest;
 import securbank.models.NewUserRequest;
 import securbank.models.Pii;
 import securbank.models.User;
 import securbank.models.Verification;
-import securbank.models.LoginAttempt;
 
 /**
  * @author Ayush Gupta
