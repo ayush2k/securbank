@@ -1,6 +1,7 @@
 package securbank.controller;
 
 import java.security.Principal;
+import java.security.cert.X509Certificate;
 import java.util.UUID;
 
 import javax.servlet.http.Cookie;
@@ -25,9 +26,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.github.mkopylec.recaptcha.validation.RecaptchaValidator;
-import com.github.mkopylec.recaptcha.validation.ValidationResult;
-
 import securbank.dao.UserDao;
 import securbank.exceptions.Exceptions;
 import securbank.models.ChangePasswordRequest;
@@ -43,6 +41,9 @@ import securbank.services.VerificationService;
 import securbank.validators.ChangePasswordFormValidator;
 import securbank.validators.CreatePasswordFormValidator;
 import securbank.validators.NewUserFormValidator;
+
+import com.github.mkopylec.recaptcha.validation.RecaptchaValidator;
+import com.github.mkopylec.recaptcha.validation.ValidationResult;
 
 /**
  * @author Ayush Gupta
@@ -85,6 +86,20 @@ public class CommonController {
 	private ChangePasswordFormValidator changePasswordFormValidator;
 
 	final static Logger logger = LoggerFactory.getLogger(CommonController.class);
+	
+	@RequestMapping(value = "/x509")
+	public String X509Test(HttpServletRequest request, HttpServletResponse response) {
+		X509Certificate[] certs = (X509Certificate[])request.getAttribute("javax.servlet.request.X509Certificate");
+		if(certs==null){
+			logger.info("No certs");
+			return "redirect:/login";
+		}
+		
+		logger.info("Cert: "+certs[0].getSubjectDN().getName());
+		
+		logger.info("Cert Size "+ certs.length);
+		return "redirect:/login";
+	}
 
 	@RequestMapping(value = "/login", method = RequestMethod.GET)
 	public String logoutPage(HttpServletRequest request, HttpServletResponse response) {
