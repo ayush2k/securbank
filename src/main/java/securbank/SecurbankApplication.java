@@ -54,5 +54,4 @@ public class SecurbankApplication {
 
 		return connector;
 	}
-
 }

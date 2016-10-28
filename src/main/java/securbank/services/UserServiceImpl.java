@@ -1,10 +1,12 @@
 package securbank.services;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
 import javax.transaction.Transactional;
+import javax.xml.soap.Detail;
 
 import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
@@ -12,7 +14,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -35,7 +42,7 @@ import securbank.models.Verification;
  */
 @Service("userService")
 @Transactional
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserService, UserDetailsService {
 
 	@Autowired
 	private UserDao userDao;
@@ -188,7 +195,8 @@ public class UserServiceImpl implements UserService {
      */
 	@Override
 	public User getCurrentUser() {
-		String username = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		UserDetails detail = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		String username = detail.getUsername();
 		if (username == null) {
 			return null;
 		}
@@ -676,5 +684,18 @@ public class UserServiceImpl implements UserService {
 	public List<User> ListAllPII() {
 		List<User> allPii = userDao.accessPii();
 		return allPii;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.springframework.security.core.userdetails.UserDetailsService#loadUserByUsername(java.lang.String)
+	 */
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		User user = userDao.findByUsernameOrEmail(username);
+		if (user == null) {
+			throw new UsernameNotFoundException("Could not find user");
+		}
+
+		return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), AuthorityUtils.createAuthorityList(user.getRole()));
 	}
 }

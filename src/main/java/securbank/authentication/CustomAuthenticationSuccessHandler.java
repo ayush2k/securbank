@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 import securbank.services.AuthenticationService;
 
-@Component
+//@Component
 public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
 
 	@Autowired

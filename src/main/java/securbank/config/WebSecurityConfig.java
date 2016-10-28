@@ -9,11 +9,13 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import securbank.authentication.CustomAuthenticationProvider;
 import securbank.authentication.CustomAuthenticationSuccessHandler;
+import securbank.services.UserService;
 
 /**
  * @author Ayush Gupta
@@ -23,11 +25,15 @@ import securbank.authentication.CustomAuthenticationSuccessHandler;
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	
-	@Autowired
-	CustomAuthenticationSuccessHandler authSuccessHandler;
+//	@Autowired
+//	CustomAuthenticationSuccessHandler authSuccessHandler;
 	
+//	@Autowired
+//	private CustomAuthenticationProvider customAuthenticationProvider;
+//	
+
 	@Autowired
-	private CustomAuthenticationProvider customAuthenticationProvider;
+	private UserService userService;
 	
 	@Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -35,7 +41,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 		http.formLogin().
 		loginPage("/login")
-        .successHandler(authSuccessHandler)
         .permitAll()
         .and()
         .authorizeRequests()
@@ -51,15 +56,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 		.and()
 			.exceptionHandling().accessDeniedPage("/error/access-denied")
 		.and()
-		.x509()
-		.subjectPrincipalRegex(".*?\\s(\\w+),");
+		.x509().userDetailsService((UserDetailsService)userService);
 
     }
-
-	@Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-    	auth.authenticationProvider(this.customAuthenticationProvider);
-    }
+//
+//	@Autowired
+//    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+//    	auth.authenticationProvider(this.customAuthenticationProvider);
+//    }
     
     @Bean
     public PasswordEncoder passwordEncoder() {

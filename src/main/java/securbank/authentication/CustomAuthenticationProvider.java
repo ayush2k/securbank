@@ -28,7 +28,7 @@ import securbank.services.AuthenticationService;
  *
  */
 
-@Component
+//@Component
 public class CustomAuthenticationProvider implements AuthenticationProvider {
 	@Autowired
 	private AuthenticationService auth;
