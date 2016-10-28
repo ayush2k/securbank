@@ -1,5 +1,6 @@
 package securbank.services;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -15,6 +16,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import com.mysql.fabric.xmlrpc.base.Array;
 
 import securbank.dao.ModificationRequestDao;
 import securbank.dao.NewUserRequestDao;
@@ -642,6 +645,9 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public List<ModificationRequest> getModificationRequestsByUsers(String status, String type, List<User> users) {
 		logger.info("Getting all modification request by user type, status of request and users");
+		if (users.size() == 0) {
+			return new ArrayList<ModificationRequest>();
+		}
 		
 		return modificationRequestDao.findAllbyStatusAndUserTypeAndUsers(status, type, users);
 
