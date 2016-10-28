@@ -1,5 +1,6 @@
 package securbank.services;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,12 +22,12 @@ import securbank.dao.NewUserRequestDao;
 import securbank.dao.UserDao;
 import securbank.models.Account;
 import securbank.models.ChangePasswordRequest;
+import securbank.models.LoginAttempt;
 import securbank.models.ModificationRequest;
 import securbank.models.NewUserRequest;
 import securbank.models.Pii;
 import securbank.models.User;
 import securbank.models.Verification;
-import securbank.models.LoginAttempt;
 
 /**
  * @author Ayush Gupta
@@ -642,6 +643,9 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public List<ModificationRequest> getModificationRequestsByUsers(String status, String type, List<User> users) {
 		logger.info("Getting all modification request by user type, status of request and users");
+		if (users.size() == 0) {
+			return new ArrayList<ModificationRequest>();
+		}
 		
 		return modificationRequestDao.findAllbyStatusAndUserTypeAndUsers(status, type, users);
 
